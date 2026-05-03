@@ -142,3 +142,11 @@ CORS_ALLOW_HEADERS = [
     'authorization',
     'session-token', 
 ]
+
+# Email backend for development
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Authentication backends
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]

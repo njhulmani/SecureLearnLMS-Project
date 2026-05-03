@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import api from './api';
 
 function Login({ setUser }) {
@@ -28,7 +28,7 @@ function Login({ setUser }) {
     try {
 
       const response = await api.post('/api/login/', {
-        username,
+        identifier: username,
         password
       });
 
@@ -118,11 +118,11 @@ function Login({ setUser }) {
             {/* Username Input */}
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
-                Username
+                Username or Email
               </label>
               <input
                 type="text"
-                placeholder="Enter your username..."
+                placeholder="Enter your username or email..."
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:border-cyan-400/50 focus:outline-none transition-all duration-300"
@@ -150,6 +150,15 @@ function Login({ setUser }) {
             >
               Sign In
             </button>
+          </div>
+
+          <div className="mt-4 text-center">
+            <Link 
+              to="/forgot-password"
+              className="text-slate-400 hover:text-cyan-400 text-sm font-medium transition-colors duration-300"
+            >
+              Forgot Password?
+            </Link>
           </div>
 
           {/* Footer Text */}

@@ -2,6 +2,8 @@ import './App.css';
 import React, { useEffect, useState } from 'react';
 import api from './api';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 /* Pages */
 import Home from './pages/Home';
@@ -214,6 +216,11 @@ function App() {
 
       {/* LOGIN */}
       <Route path='/login' element={<Login setUser={setUser}/>} />
+
+      {/* Forgot Password */}
+      {/* <Route path="/" element={<Login />} /> */}
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
 
 
       {/* ADMIN DASHBOARD */}

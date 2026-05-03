@@ -1,34 +1,31 @@
+from django.utils import timezone
+from datetime import timedelta
+from django.core.mail import send_mail
+from accounts.models import PasswordResetToken
 from rest_framework.authtoken.models import Token
-from urllib import request
+from accounts.permissions import IsSessionValid
 import uuid
 
-from django.shortcuts import render
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
+from django.db.models import Q
+from accounts.models import User, UserSession
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from courses.models import Course, Video, Enrollment, VideoProgress
 
-from rest_framework_simplejwt.tokens import RefreshToken
-
-from accounts.utils import validate_session
 from .models import UserSession
-
 User = get_user_model()
 
 
 # Create your views here.
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsSessionValid])
 def create_user(request):
 
-    # 🔐 validate session
-    session_check = validate_session(request)
-    if session_check:
-        return session_check
 
     # 👮 admin only
     if request.user.role != 'admin':
@@ -81,48 +78,56 @@ def create_user(request):
 @api_view(['POST'])
 def login_api(request):
 
-    username = request.data.get('username')
+    identifier = request.data.get('identifier')
     password = request.data.get('password')
 
-    user = authenticate(request, username=username, password=password)
+    if not identifier or not password:
+        return Response({'error': 'Missing credentials'}, status=400)
+    
+    identifier = identifier.strip()
+
+    # ✅ Find user by username OR email
+    user_obj = User.objects.filter(
+        Q(username__iexact=identifier) | Q(email__iexact=identifier)
+    ).first()
+
+    if user_obj is None:
+        return Response({'error': 'User not found'}, status=404)
+
+    # ✅ Authenticate using username internally
+    user = authenticate(request, username=user_obj.username, password=password)
 
     if user is None:
-        return Response({'error': 'Invalid username or password'}, status=401)
+        return Response({'error': 'Invalid credentials'}, status=401)
 
     if not user.is_active:
         return Response({'error': 'User disabled'}, status=403)
 
-    # 🔥 Remove old sessions (optional but recommended)
+    # 🔥 Remove old sessions
     UserSession.objects.filter(user=user).delete()
 
-    # ✅ Create new session
-    session_token = str(uuid.uuid4())
-
-    UserSession.objects.create(
+    # ✅ Create session
+    session = UserSession.objects.create(
         user=user,
-        session_token=session_token,
-        is_active=True
+        session_token=uuid.uuid4(),
+        is_active=True,
+        expires_at=timezone.now() + timedelta(minutes=30)
     )
 
-
-    # Token (DRF)
+    # ✅ DRF Token
     token, _ = Token.objects.get_or_create(user=user)
 
     return Response({
         'access_token': token.key,
-        'session_token': session_token,
+        'session_token': str(session.session_token),
         'role': user.role,
         'username': user.username
     })
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsSessionValid])
 def list_students(request):
-
-    session_check = validate_session(request)
-    if session_check:
-        return session_check
     
     students = User.objects.filter(role='student').values(
         'id', 'first_name', 'last_name', 'username'
@@ -131,12 +136,8 @@ def list_students(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsSessionValid])
 def force_logout(request):
-    # 🔐 Session validation (so only active admin session can do this)
-    session_check = validate_session(request)
-    if session_check:
-        return session_check
 
     # 👮 Role check
     if request.user.role != 'admin':
@@ -154,10 +155,6 @@ def force_logout(request):
     # ❗ Deactivate ALL active sessions of that user
     updated = UserSession.objects.filter(user=target, is_active=True).update(is_active=False)
 
-    # (Optional) also clear cached token on User model
-    target.session_token = None
-    target.save()
-
     return Response({
         'message': 'User logged out',
         'affected_sessions': updated
@@ -166,14 +163,13 @@ def force_logout(request):
 
 # ✅ NEW: Disable user (Admin only)
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
-
+@permission_classes([IsAuthenticated, IsSessionValid])
 def disable_user(request, user_id):
 
     # Validate active session
-    session_check = validate_session(request)
-    if session_check:
-        return session_check
+    # session_check = validate_session(request)
+    # if session_check:
+    #     return session_check
 
     # Admin only
     if request.user.role != 'admin':
@@ -242,14 +238,8 @@ def disable_user(request, user_id):
 
 # ✅ NEW: Enable user (Admin only)
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
-
+@permission_classes([IsAuthenticated, IsSessionValid])
 def enable_user(request, user_id):
-
-    # validate active session
-    session_check = validate_session(request)
-    if session_check:
-        return session_check
 
     # admin only
     if request.user.role != 'admin':
@@ -303,12 +293,8 @@ def enable_user(request, user_id):
 
 # ✅ NEW: Edit user details (Admin only)
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsSessionValid])
 def edit_user(request):
-
-    session_check = validate_session(request)
-    if session_check:
-        return session_check
 
     if request.user.role != 'admin':
         return Response(
@@ -351,12 +337,8 @@ def edit_user(request):
 
 # ✅ NEW: List active sessions (Admin only)
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsSessionValid])
 def active_sessions(request):
- 
- session_check = validate_session(request)
- if session_check:
-    return session_check
 
  if request.user.role!='admin':
    return Response({'error':'Unauthorized'}, status=403
@@ -368,14 +350,14 @@ def active_sessions(request):
  'user__username',
  'ip_address',
  'device_info',
- 'login_time'
+ 'created_at'
  )
 
  return Response(list(sessions))
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsSessionValid])
 def admin_stats(request):
 
     if request.user.role != 'admin':
@@ -400,13 +382,8 @@ def admin_stats(request):
 
 # ========================= Self logout =========================
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsSessionValid])
 def logout_api(request):
-
-    # Validate active session for this request
-    session_check = validate_session(request)
-    if session_check:
-        return session_check
 
     session_token = request.headers.get('Session-Token')
 
@@ -426,8 +403,9 @@ def logout_api(request):
     })
 
 
+# ========================= Trainer stats =========================
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsSessionValid])
 def trainer_stats(request):
 
 
@@ -454,8 +432,9 @@ def trainer_stats(request):
 
     return Response(data)
 
+# ✅ NEW: Student stats (Student only)
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsSessionValid])
 def student_stats(request):
 
     if request.user.role!='student':
@@ -505,7 +484,7 @@ def student_stats(request):
 
 # list all users with active session info (Admin only)
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsSessionValid])
 def list_users(request):
 
     if request.user.role!='admin':
@@ -533,3 +512,48 @@ def list_users(request):
         })
 
     return Response(data)
+
+
+
+# Forgot password
+@api_view(['POST'])
+def forgot_password(request):
+    email = request.data.get('email')
+
+    user = User.objects.filter(email=email).first()
+    if not user:
+        return Response({'error': 'User not found'}, status=404)
+
+    # create token
+    reset = PasswordResetToken.objects.create(user=user)
+
+    reset_link = f"http://localhost:3000/reset-password/{reset.token}"
+
+    send_mail(
+        subject="Reset your password",
+        message=f"Click this link to reset your password:\n{reset_link}",
+        from_email="noreply@lms.com",
+        recipient_list=[email],
+    )
+
+    return Response({'message': 'Reset link sent'})
+
+
+# Reset password
+@api_view(['POST'])
+def reset_password(request, token):
+    password = request.data.get('password')
+
+    reset_obj = PasswordResetToken.objects.filter(token=token).first()
+
+    if not reset_obj:
+        return Response({'error': 'Invalid or expired token'}, status=400)
+
+    user = reset_obj.user
+    user.set_password(password) 
+    user.save()
+
+    # delete token after use
+    reset_obj.delete()
+
+    return Response({'message': 'Password updated successfully'})
