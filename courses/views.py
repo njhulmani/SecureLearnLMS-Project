@@ -22,8 +22,8 @@ def create_course(request):
     if session_check:
         return session_check
 
-    if request.user.role not in ['admin', 'trainer']:
-        return Response({'error': 'Unauthorized'}, status=403)
+    if request.user.role != "admin":
+        return Response({'error': 'Unauthorized acess, Only admin can create courses'}, status=403)
 
     title = request.data.get('title')
     description = request.data.get('description')
@@ -41,8 +41,7 @@ def create_course(request):
         category=category,
         level=level,
         duration=duration,
-        # created_by=request.user
-        trainer = request.user
+        created_by = request.user
     )
 
     return Response({'message': 'Course created successfully'})
@@ -225,7 +224,7 @@ def add_video(request):
 
     # ✅ Fetch course
     try:
-        course = Course.objects.get(id=course_id)
+        course = Course.objects.get(id=course_id, is_archived=False)
     except Course.DoesNotExist:
         return Response({'error': 'Course not found'}, status=404)
 
@@ -310,14 +309,9 @@ def student_courses(request):
 
     # Only students allowed
     if request.user.role != 'student':
-        return Response(
-            {'error':'Unauthorized'},
-            status=403
-        )
+        return Response({'error':'Unauthorized'}, status=403)
 
-    enrollments = Enrollment.objects.filter(
-        student=request.user, course__is_archived=False
-    )
+    enrollments = Enrollment.objects.filter(student=request.user, course__is_archived=False)
 
     data=[]
 
@@ -344,6 +338,7 @@ def student_courses(request):
             )
 
         data.append({
+            'id': course.id,
             'course': course.title,
             # optional metadata
             'description': course.description,
@@ -394,18 +389,13 @@ def mark_video_complete(request):
     video_id=request.data.get('video_id')
     video=Video.objects.get(id=video_id)
 
-    progress,created = VideoProgress.objects.get_or_create(
-       student=request.user,
-       video=video
-    )
+    progress,created = VideoProgress.objects.get_or_create(student=request.user, video=video)
 
     progress.completed=True
     progress.completed_at=timezone.now()
     progress.save()
 
-    return Response({
-      'message':'Completed'
-    })
+    return Response({'message':'Completed'})
 
 
 # Admin + Trainer can see all enrollments
@@ -413,29 +403,16 @@ def mark_video_complete(request):
 @permission_classes([IsAuthenticated])
 def list_enrollments(request):
 
-    if request.user.role not in [
-       'admin',
-       'trainer'
-    ]:
-        return Response(
-          {'error':'Unauthorized'},
-          status=403
-        )
-
+    if request.user.role not in ['admin', 'trainer']:
+        return Response({'error':'Unauthorized'}, status=403)
 
     enrollments=Enrollment.objects.filter(course__is_archived=False)
-
-
     data=[]
 
     for e in enrollments:
 
         data.append({
-            'id':e.id,
-            'student_name':
-              e.student.username,
-            'course_title':
-              e.course.title
+            'id':e.id, 'student_name':e.student.username, 'course_title':e.course.title
         })
 
 
@@ -445,19 +422,12 @@ def list_enrollments(request):
 # Admin can delete enrollment (unenroll student)
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
-def delete_enrollment(
-request,
-enrollment_id
-):
+def delete_enrollment(request, enrollment_id):
 
     if request.user.role!='admin':
-        return Response(
-          {'error':'Unauthorized'},
-          status=403
-        )
+        return Response({'error':'Unauthorized'}, status=403)
 
     enrollment=Enrollment.objects.get(id=enrollment_id)
-
     enrollment.delete()
 
     return Response({
@@ -467,43 +437,35 @@ enrollment_id
 
 
 # Trainer can see their courses and progress stats
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def trainer_courses(request):
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def trainer_courses(request):
 
-    session_check=validate_session(request)
+#     session_check=validate_session(request)
 
-    if session_check:
-        return session_check
+#     if session_check:
+#         return session_check
 
+#     if request.user.role!='trainer':
+#         return Response({'error':'Unauthorized'}, status=403)
 
-    if request.user.role!='trainer':
-        return Response(
-         {'error':'Unauthorized'},
-         status=403
-        )
+#     courses=Course.objects.filter(trainer=request.user, is_archived=False)
 
+#     data=[]
 
-    courses=Course.objects.filter(
-      trainer=request.user, is_archived=False
-    )
+#     for c in courses:
+#         videos_count=Video.objects.filter(course=c).count()
 
-    data=[]
-
-    for c in courses:
-
-        videos_count=Video.objects.filter(course=c).count()
-
-        data.append({
-         'id':c.id,
-         'title':c.title,
-         'description':c.description,
-         'category':c.category,
-         'level':c.level,
-         'duration':c.duration,
-         'videos_count':videos_count,
-         'created_by': f"{c.trainer.role.capitalize()} ({c.trainer.username})"
-        })
+#         data.append({
+#          'id':c.id,
+#          'title':c.title,
+#          'description':c.description,
+#          'category':c.category,
+#          'level':c.level,
+#          'duration':c.duration,
+#          'videos_count':videos_count,
+#          'created_by': f"{c.trainer.role.capitalize()} ({c.trainer.username})"
+#         })
 
 
-    return Response(data)
+#     return Response(data)

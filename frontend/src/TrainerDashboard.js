@@ -7,7 +7,6 @@ function TrainerDashboard() {
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
-  const [view, setView] = useState('dashboard');
   const [stats, setStats] = useState({ courses: 0, videos: 0 });
   const [trainerCourses, setTrainerCourses] = useState([]);
 
@@ -92,14 +91,7 @@ function TrainerDashboard() {
                 icon="▣"
                 label="Dashboard"
                 collapsed={collapsed}
-                active={view === 'dashboard'}
-                onClick={() => setView('dashboard')}
-              />
-              <SideButton
-                icon="＋"
-                label="Create Course"
-                collapsed={collapsed}
-                onClick={() => navigate('/create-course')}
+                onClick={() => {}}
               />
               <SideButton
                 icon="▶"
@@ -107,13 +99,7 @@ function TrainerDashboard() {
                 collapsed={collapsed}
                 onClick={() => navigate('/add-video')}
               />
-              <SideButton
-                icon="📖"
-                label="My Catalog"
-                collapsed={collapsed}
-                active={view === 'catalog'}
-                onClick={() => setView('catalog')}
-              />
+              
               <SideButton
                 icon="👤"
                 label="Profile"
@@ -177,12 +163,6 @@ function TrainerDashboard() {
 
                 <div className="flex flex-col gap-3 sm:flex-row xl:min-w-[320px] xl:flex-col">
                   <button
-                    onClick={() => navigate('/create-course')}
-                    className="rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:-translate-y-0.5 hover:bg-cyan-50"
-                  >
-                    Create course
-                  </button>
-                  <button
                     onClick={() => navigate('/add-video')}
                     className="rounded-2xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-white/10"
                   >
@@ -192,8 +172,7 @@ function TrainerDashboard() {
               </div>
             </header>
 
-            <section className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-              <StatCard title="Courses" value={stats.courses} hint="Active courses in your workspace" icon="📚" accent="from-cyan-400 to-blue-500" />
+            <section className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               <StatCard title="Videos" value={stats.videos} hint="Uploaded learning assets" icon="🎬" accent="from-fuchsia-400 to-pink-500" />
               <StatCard title="Profile" value={currentUser?.username || 'Trainer'} hint="Account identity" icon="👤" accent="from-emerald-400 to-teal-500" />
               <StatCard title="Status" value="Online" hint="Dashboard ready" icon="✨" accent="from-amber-400 to-orange-500" />
@@ -210,25 +189,11 @@ function TrainerDashboard() {
 
                 <div className="mt-6 grid gap-4 md:grid-cols-3">
                   <ActionCard
-                    label="Create a polished course"
-                    description="Start a new learning path with a structured content flow."
-                    buttonLabel="Create course"
-                    onClick={() => navigate('/create-course')}
-                    accent="from-cyan-400/20 to-blue-500/20"
-                  />
-                  <ActionCard
                     label="Upload new videos"
-                    description="Add lessons and media assets to keep your catalog current."
+                    description="Add lessons and media assets to keep your content current."
                     buttonLabel="Add videos"
                     onClick={() => navigate('/add-video')}
                     accent="from-fuchsia-400/20 to-pink-500/20"
-                  />
-                  <ActionCard
-                    label="Review your catalog"
-                    description="Check progress, edit courses, and keep your content organized."
-                    buttonLabel="Open catalog"
-                    onClick={() => setView('catalog')}
-                    accent="from-emerald-400/20 to-teal-500/20"
                   />
                 </div>
               </div>
@@ -262,7 +227,6 @@ function TrainerDashboard() {
 
                   <div className="mt-5 grid gap-3 text-sm text-slate-300">
                     <InfoRow label="Username" value={currentUser?.username || '—'} />
-                    <InfoRow label="Courses" value={stats.courses} />
                     <InfoRow label="Videos" value={stats.videos} />
                   </div>
 
@@ -287,92 +251,7 @@ function TrainerDashboard() {
               </div>
             </section>
 
-            <section className="mt-6 rounded-[2rem] border border-white/10 bg-white/8 p-6 shadow-2xl shadow-slate-950/20 backdrop-blur-xl sm:p-7">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <p className="text-sm uppercase tracking-[0.35em] text-cyan-300/80">Catalog</p>
-                  <h3 className="mt-2 text-2xl font-semibold text-white">
-                    {view === 'dashboard' ? 'Featured workspace snapshot' : 'My course catalog'}
-                  </h3>
-                </div>
-                <button
-                  onClick={() => setView(view === 'dashboard' ? 'catalog' : 'dashboard')}
-                  className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
-                >
-                  Switch view
-                </button>
-              </div>
-
-              {view === 'dashboard' ? (
-                <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  <MiniFeature title="Structured publishing" text="Keep lessons organized with a layout that feels lighter and faster." />
-                  <MiniFeature title="Fast course editing" text="Jump back into a course and revise details without losing momentum." />
-                  <MiniFeature title="Content overview" text="See the current shape of your training library at a glance." />
-                </div>
-              ) : (
-                <div className="mt-6">
-                  {trainerCourses.length === 0 ? (
-                    <div className="rounded-[1.5rem] border border-dashed border-white/15 bg-slate-950/40 p-10 text-center">
-                      <p className="text-lg font-semibold text-white">No courses created yet</p>
-                      <p className="mt-2 text-sm text-slate-400">Create your first course to populate this catalog.</p>
-                      <button
-                        onClick={() => navigate('/create-course')}
-                        className="mt-5 rounded-2xl bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
-                      >
-                        Create course
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
-                      {trainerCourses.map((course) => (
-                        <div
-                          key={course.id}
-                          className="group rounded-[1.75rem] border border-white/10 bg-slate-950/45 p-5 shadow-lg shadow-slate-950/20 transition hover:-translate-y-1 hover:border-cyan-300/20"
-                        >
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <p className="text-xs uppercase tracking-[0.35em] text-cyan-300/80">Course</p>
-                              <h4 className="mt-2 text-xl font-semibold text-white">{course.title}</h4>
-                            </div>
-                            <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-slate-200">
-                              {course.level || 'All levels'}
-                            </span>
-                          </div>
-
-                          <ReadMoreText
-                            text={course.description}
-                            fallback="No description available."
-                            className="mt-4 text-sm leading-6 text-slate-300"
-                          />
-
-                          <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
-                            <MetaPill label="Category" value={course.category || 'General'} />
-                            <MetaPill label="Duration" value={course.duration || '—'} />
-                            <MetaPill label="Videos" value={course.videos_count ?? 0} />
-                            <MetaPill label="Status" value={course.is_archived ? 'Archived' : 'Live'} />
-                          </div>
-
-                          <div className="mt-5 flex flex-wrap gap-3">
-                            <button
-                              onClick={() => navigate('/add-video')}
-                              className="rounded-2xl bg-cyan-400 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
-                            >
-                              Add video
-                            </button>
-                            <button
-                              onClick={() => navigate('/create-course', { state: { editMode: true, course } })}
-                              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-                            >
-                              Edit course
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </section>
+            {/* Catalog and course-management UI removed for trainers */}
           </div>
         </main>
       </div>

@@ -12,6 +12,7 @@ import Login from './Login';
 import AdminDashboard from './AdminDashboard';
 import TrainerDashboard from './TrainerDashboard';
 import StudentDashboard from './StudentDashboard';
+import CourseDetail from './pages/CourseDetail';
 
 import CreateUser from './CreateUser';
 import CreateCourse from './CreateCourse';
@@ -255,6 +256,15 @@ function App() {
         }
       />
 
+      {/* STUDENT COURSE DETAIL */}
+      <Route
+        path='/course/:id'
+        element={
+          <ProtectedRoute role='student'>
+            <CourseDetail />
+          </ProtectedRoute>
+        }
+      />
 
       {/* ADMIN ONLY */}
       <Route

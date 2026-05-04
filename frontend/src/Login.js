@@ -87,8 +87,9 @@ function Login({ setUser }) {
   // ==========================UI==========================
   return (
     <div className="min-h-screen bg-slate-950 relative overflow-hidden flex flex-col items-center justify-center">
-      {/* Radial gradient background */}
-      <div className="absolute inset-0 bg-gradient-radial from-cyan-500/10 via-transparent to-transparent opacity-30 pointer-events-none" />
+      {/* Background gradients */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.18),_transparent_30%),radial-gradient(circle_at_top_right,_rgba(236,72,153,0.16),_transparent_28%),linear-gradient(180deg,_#0f172a_0%,_#020617_100%)]" />
+      <div className="pointer-events-none absolute left-1/2 top-[-8rem] h-80 w-80 -translate-x-1/2 rounded-full bg-cyan-400/20 blur-3xl" />
 
       {/* Back button */}
       <div className="absolute top-8 left-8 z-20">
@@ -102,7 +103,7 @@ function Login({ setUser }) {
 
       {/* Login Card */}
       <div className="relative z-10 w-full max-w-md mx-4">
-        <div className="bg-slate-900/40 backdrop-blur-xl border border-white/10 rounded-[2rem] p-8 md:p-10">
+        <div className="bg-slate-900/40 backdrop-blur-xl border border-white/10 rounded-[2rem] p-8 md:p-10 shadow-2xl shadow-cyan-950/40">
           {/* Logo */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold">

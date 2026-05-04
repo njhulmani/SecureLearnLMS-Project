@@ -26,7 +26,6 @@ User = get_user_model()
 @permission_classes([IsAuthenticated, IsSessionValid])
 def create_user(request):
 
-
     # 👮 admin only
     if request.user.role != 'admin':
         return Response({'error': 'Unauthorized'}, status=403)
@@ -356,25 +355,39 @@ def active_sessions(request):
  return Response(list(sessions))
 
 
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated, IsSessionValid])
+# def admin_stats(request):
+
+#     if request.user.role != 'admin':
+#         return Response({'error':'Unauthorized'}, status=403)
+
+#     data={
+#       "users":User.objects.count(),
+#       "courses":Course.objects.count(),
+#       "videos":Video.objects.count(),
+#       "enrollments":Enrollment.objects.count(),
+#       "disabled_users":
+#          User.objects.filter(
+#           is_active=False
+#          ).count()
+#     }
+
+#     return Response(data)
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsSessionValid])
 def admin_stats(request):
 
     if request.user.role != 'admin':
-        return Response(
-          {'error':'Unauthorized'},
-          status=403
-        )
+        return Response({'error': 'Unauthorized'}, status=403)
 
-    data={
-      "users":User.objects.count(),
-      "courses":Course.objects.count(),
-      "videos":Video.objects.count(),
-      "enrollments":Enrollment.objects.count(),
-      "disabled_users":
-         User.objects.filter(
-          is_active=False
-         ).count()
+    data = {
+        "users": User.objects.count(),
+        "courses": Course.objects.filter(is_archived=False).count(),
+        "videos": Video.objects.filter(course__is_archived=False).count(),
+        "enrollments": Enrollment.objects.filter(course__is_archived=False).count(),
+        "disabled_users": User.objects.filter(is_active=False).count()
     }
 
     return Response(data)
@@ -410,20 +423,10 @@ def trainer_stats(request):
 
 
     if request.user.role != 'trainer':
-        return Response(
-            {'error':'Unauthorized'},
-            status=403
-        )
+        return Response({'error':'Unauthorized'}, status=403)
 
-    courses = Course.objects.filter(
-        trainer=request.user
-    ).count()
-
-
-    videos = Video.objects.filter(
-        course__trainer=request.user
-    ).count()
-
+    courses = Course.objects.filter(trainer=request.user, is_archived=False ).count()
+    videos = Video.objects.filter(course__trainer=request.user, course__is_archived=False ).count()
 
     data = {
        'courses':courses,
@@ -432,49 +435,38 @@ def trainer_stats(request):
 
     return Response(data)
 
+
 # ✅ NEW: Student stats (Student only)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsSessionValid])
 def student_stats(request):
 
     if request.user.role!='student':
-        return Response(
-           {'error':'Unauthorized'},
-           status=403
-        )
+        return Response({'error':'Unauthorized'}, status=403)
 
-    enrollments=Enrollment.objects.filter(student=request.user)
-    course_count=enrollments.count()
-    total_videos=0
-    completed=0
+    enrollments=Enrollment.objects.filter(student=request.user, course__is_archived=False)
 
+    course_count = enrollments.count()
+    total_videos = 0
+    completed = 0
 
     for enroll in enrollments:
-
-        videos=Video.objects.filter(course=enroll.course)
-
+        videos=Video.objects.filter(course=enroll.course, course__is_archived=False)
         total_videos+=videos.count()
-
         for v in videos:
-
             if VideoProgress.objects.filter(
                student=request.user,
                video=v,
                completed=True
             ).exists():
-
                 completed+=1
 
-    progress=0
+    progress = 0
 
-    if total_videos>0:
-       progress=round(
-         completed/total_videos*100
-       )
-
+    if total_videos > 0:
+       progress = round(completed/total_videos*100)
 
     return Response({
-
       'courses':course_count,
       'completed':completed,
       'total_videos':total_videos,
@@ -525,7 +517,10 @@ def forgot_password(request):
         return Response({'error': 'User not found'}, status=404)
 
     # create token
-    reset = PasswordResetToken.objects.create(user=user)
+    reset = PasswordResetToken.objects.create(
+        user=user,
+        expires_at=timezone.now() + timedelta(minutes=10)   
+    )
 
     reset_link = f"http://localhost:3000/reset-password/{reset.token}"
 
@@ -544,6 +539,9 @@ def forgot_password(request):
 def reset_password(request, token):
     password = request.data.get('password')
 
+    if len(password) < 6:
+        return Response({'error': 'Password must be at least 6 characters'}, status=400)
+
     reset_obj = PasswordResetToken.objects.filter(token=token).first()
 
     if not reset_obj:
@@ -554,6 +552,26 @@ def reset_password(request, token):
     user.save()
 
     # delete token after use
-    reset_obj.delete()
+    if timezone.now() > reset_obj.expires_at:
+        reset_obj.delete()
+        return Response({'error': 'Token expired'}, status=400) 
 
     return Response({'message': 'Password updated successfully'})
+
+
+# Get current user info
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, IsSessionValid])
+def current_user(request):
+
+    user = request.user
+
+    return Response({
+        "id": user.id,
+        "username": user.username,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "email": user.email,
+        "role": user.role,
+        "date_joined": user.date_joined,
+    })
