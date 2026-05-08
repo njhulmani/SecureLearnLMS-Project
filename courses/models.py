@@ -39,3 +39,19 @@ class VideoProgress(models.Model):
     video = models.ForeignKey(Video, on_delete=models.CASCADE)
     completed = models.BooleanField(default=False)
     completed_at = models.DateTimeField(null=True, blank=True)
+
+
+class ContinueWatching(models.Model):
+
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    last_video = models.ForeignKey(Video, on_delete=models.CASCADE)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('student', 'course')
+
+    def __str__(self):
+        return (
+            f"{self.student.username} - " f"{self.course.title}"
+        )

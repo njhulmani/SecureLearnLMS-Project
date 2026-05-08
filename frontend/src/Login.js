@@ -123,7 +123,7 @@ function Login({ setUser }) {
               </label>
               <input
                 type="text"
-                placeholder="Enter your username or email..."
+                placeholder="Enter your Username/Email/Mobile"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:border-cyan-400/50 focus:outline-none transition-all duration-300"

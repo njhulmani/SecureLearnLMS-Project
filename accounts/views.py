@@ -1,15 +1,15 @@
+from urllib import request
+
 from django.utils import timezone
 from datetime import timedelta
 from django.core.mail import send_mail
-from accounts.models import PasswordResetToken
 from rest_framework.authtoken.models import Token
 from accounts.permissions import IsSessionValid
 import uuid
 
-from django.contrib.auth import authenticate
-from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate, get_user_model
 from django.db.models import Q
-from accounts.models import User, UserSession
+from accounts.models import User, UserSession, PasswordResetToken
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -39,17 +39,11 @@ def create_user(request):
 
     # ❗ validation
     if not username or not password or not role:
-        return Response(
-            {'error': 'username, password and role are required'},
-            status=400
-        )
+        return Response({'error': 'username, password and role are required'}, status=400)
 
     # ❗ check duplicate user
     if User.objects.filter(username=username).exists():
-        return Response(
-            {'error': 'Username already exists'},
-            status=400
-        )
+        return Response({'error': 'Username already exists'}, status=400)
 
     try:
         # ✅ create user (password hashed automatically)
@@ -63,37 +57,31 @@ def create_user(request):
         user.last_name = last_name or ''
         user.save()
 
-        return Response({
-            'message': 'User created successfully'
-        })
+        return Response({'message': 'User created successfully'})
 
     except Exception as e:
-        return Response(
-            {'error': str(e)},
-            status=500
-        )
+        return Response({'error': str(e)}, status=500)
 
 
+# ======================== Login API =========================
 @api_view(['POST'])
 def login_api(request):
 
     identifier = request.data.get('identifier')
-    password = request.data.get('password')
+    password = request.data.get('password') 
 
     if not identifier or not password:
         return Response({'error': 'Missing credentials'}, status=400)
     
     identifier = identifier.strip()
 
-    # ✅ Find user by username OR email
     user_obj = User.objects.filter(
-        Q(username__iexact=identifier) | Q(email__iexact=identifier)
+        Q(username__iexact=identifier) | Q(email__iexact=identifier) | Q(phone__iexact=identifier)
     ).first()
 
     if user_obj is None:
         return Response({'error': 'User not found'}, status=404)
 
-    # ✅ Authenticate using username internally
     user = authenticate(request, username=user_obj.username, password=password)
 
     if user is None:
@@ -105,22 +93,41 @@ def login_api(request):
     # 🔥 Remove old sessions
     UserSession.objects.filter(user=user).delete()
 
-    # ✅ Create session
+    # ================= IP ADDRESS =================
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+
+    if x_forwarded_for:
+        ip_address = x_forwarded_for.split(',')[0]
+    else:
+        ip_address = request.META.get('REMOTE_ADDR')
+
+    # ================= DEVICE INFO =================
+    device_info = request.META.get(
+        'HTTP_USER_AGENT',
+        'Unknown Device'
+    )
+
+
     session = UserSession.objects.create(
         user=user,
         session_token=uuid.uuid4(),
         is_active=True,
+        ip_address=ip_address,
+        device_info=device_info,
         expires_at=timezone.now() + timedelta(minutes=30)
     )
 
-    # ✅ DRF Token
     token, _ = Token.objects.get_or_create(user=user)
 
     return Response({
         'access_token': token.key,
         'session_token': str(session.session_token),
-        'role': user.role,
-        'username': user.username
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "role": user.role,
     })
 
 
@@ -154,10 +161,7 @@ def force_logout(request):
     # ❗ Deactivate ALL active sessions of that user
     updated = UserSession.objects.filter(user=target, is_active=True).update(is_active=False)
 
-    return Response({
-        'message': 'User logged out',
-        'affected_sessions': updated
-    })
+    return Response({'message': 'User logged out', 'affected_sessions': updated})
 
 
 # ✅ NEW: Disable user (Admin only)
@@ -165,58 +169,29 @@ def force_logout(request):
 @permission_classes([IsAuthenticated, IsSessionValid])
 def disable_user(request, user_id):
 
-    # Validate active session
-    # session_check = validate_session(request)
-    # if session_check:
-    #     return session_check
-
     # Admin only
     if request.user.role != 'admin':
-        return Response(
-            {'error':'Unauthorized'},
-            status=403
-        )
-
+        return Response({'error':'Unauthorized'}, status=403)
 
     try: 
         user = User.objects.get(id=user_id)
     except User.DoesNotExist:
-        return Response(
-            {'error':'User not found'},
-            status=404
-        )
+        return Response({'error':'User not found'}, status=404)
 
     # prevent admin disabling self
     if user == request.user:
-        return Response(
-            {
-             'error':
-             'Admin cannot disable self'
-            },
-            status=400
-        )
+        return Response({'error': 'Admin cannot disable self'}, status=400)
 
 
     # optional:
     # prevent disabling other admins
     if user.role == 'admin':
-        return Response(
-            {
-             'error':
-             'Another admin cannot be disabled'
-            },
-            status=400
-        )
+        return Response({'error': 'Another admin cannot be disabled'}, status=400)
 
 
     # already disabled check
     if not user.is_active:
-        return Response(
-            {
-             'message':
-             'User already disabled'
-            }
-        )
+        return Response({'message': 'User already disabled'})
 
     # Disable user
     user.is_active=False
@@ -277,16 +252,9 @@ def enable_user(request, user_id):
     user.save()
 
     return Response({
-
-       'message':
-       'User enabled successfully',
-
-       'user_id':
-       user.id,
-
-       'status':
-       'enabled'
-
+       'message': 'User enabled successfully',
+       'user_id': user.id,
+       'status': 'enabled'
     })
 
 
@@ -296,23 +264,15 @@ def enable_user(request, user_id):
 def edit_user(request):
 
     if request.user.role != 'admin':
-        return Response(
-            {'error':'Unauthorized'},
-            status=403
-        )
+        return Response({'error':'Unauthorized'}, status=403)
 
     user_id = request.data.get('user_id')
 
     try:
-        user = User.objects.get(
-           id=int(user_id)
-        )
+        user = User.objects.get(id=int(user_id))
 
     except User.DoesNotExist:
-        return Response(
-          {'error':'User not found'},
-          status=404
-        )
+        return Response({'error':'User not found'}, status=404)
 
 
     first_name = request.data.get('first_name')
@@ -330,9 +290,8 @@ def edit_user(request):
 
     user.save()
 
-    return Response({
-      'message':'User updated successfully'
-    })
+    return Response({'message':'User updated successfully'})
+
 
 # ✅ NEW: List active sessions (Admin only)
 @api_view(['GET'])
@@ -340,41 +299,19 @@ def edit_user(request):
 def active_sessions(request):
 
  if request.user.role!='admin':
-   return Response({'error':'Unauthorized'}, status=403
-   )
+   return Response({'error':'Unauthorized'}, status=403)
 
- sessions=UserSession.objects.filter(
-   is_active=True
- ).values(
- 'user__username',
- 'ip_address',
- 'device_info',
- 'created_at'
+ sessions=UserSession.objects.filter(is_active=True).values(
+    'user__username',
+    'ip_address',
+    'device_info',
+    'created_at'
  )
 
  return Response(list(sessions))
 
 
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated, IsSessionValid])
-# def admin_stats(request):
-
-#     if request.user.role != 'admin':
-#         return Response({'error':'Unauthorized'}, status=403)
-
-#     data={
-#       "users":User.objects.count(),
-#       "courses":Course.objects.count(),
-#       "videos":Video.objects.count(),
-#       "enrollments":Enrollment.objects.count(),
-#       "disabled_users":
-#          User.objects.filter(
-#           is_active=False
-#          ).count()
-#     }
-
-#     return Response(data)
-
+# Admin Stats
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, IsSessionValid])
 def admin_stats(request):
@@ -391,6 +328,7 @@ def admin_stats(request):
     }
 
     return Response(data)
+
 
 
 # ========================= Self logout =========================
@@ -421,7 +359,6 @@ def logout_api(request):
 @permission_classes([IsAuthenticated, IsSessionValid])
 def trainer_stats(request):
 
-
     if request.user.role != 'trainer':
         return Response({'error':'Unauthorized'}, status=403)
 
@@ -434,6 +371,7 @@ def trainer_stats(request):
     }
 
     return Response(data)
+
 
 
 # ✅ NEW: Student stats (Student only)
@@ -473,6 +411,7 @@ def student_stats(request):
       'progress':progress
 
     })
+
 
 # list all users with active session info (Admin only)
 @api_view(['GET'])
@@ -569,9 +508,9 @@ def current_user(request):
     return Response({
         "id": user.id,
         "username": user.username,
+        "email": user.email,
         "first_name": user.first_name,
         "last_name": user.last_name,
-        "email": user.email,
         "role": user.role,
         "date_joined": user.date_joined,
     })

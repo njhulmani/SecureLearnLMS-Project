@@ -8,11 +8,12 @@ import ResetPassword from './pages/ResetPassword';
 /* Pages */
 import Home from './pages/Home';
 import Login from './Login';
+import WatchCourse from './pages/WatchCourse';
+import CourseDetail from './pages/CourseDetail';
 
 import AdminDashboard from './AdminDashboard';
 import TrainerDashboard from './TrainerDashboard';
 import StudentDashboard from './StudentDashboard';
-import CourseDetail from './pages/CourseDetail';
 
 import CreateUser from './CreateUser';
 import CreateCourse from './CreateCourse';
@@ -128,7 +129,7 @@ function App() {
 
     /* listeners */
     document.addEventListener('contextmenu', disableRightClick);
-    document.addEventListener( 'keydown', blockShortcuts);
+    document.addEventListener('keydown', blockShortcuts);
     document.addEventListener('keydown', detectPrintScreen);
     window.addEventListener('mousemove', resetTimer);
     window.addEventListener('keypress', resetTimer);
@@ -191,7 +192,7 @@ function App() {
 
 
   /* multi-role route */
-  const MultiRoleRoute = ({children, roles}) => {
+  const MultiRoleRoute = ({ children, roles }) => {
 
     if (!user) {
       return <Navigate to='/login' />;
@@ -212,121 +213,45 @@ function App() {
 
 
       {/* HOME */}
-      <Route path='/' element={<Home />}/>
+      <Route path='/' element={<Home />} />
 
 
       {/* LOGIN */}
-      <Route path='/login' element={<Login setUser={setUser}/>} />
+      <Route path='/login' element={<Login setUser={setUser} />} />
 
       {/* Forgot Password */}
-      {/* <Route path="/" element={<Login />} /> */}
       <Route path="/forgot-password" element={<ForgotPassword />} />
+
+      {/* Reset Password */}
       <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-
       {/* ADMIN DASHBOARD */}
-      <Route
-        path='/admin'
-        element={
-          <ProtectedRoute role='admin'>
-            <AdminDashboard />
-          </ProtectedRoute>
-        }
-      />
-
+      <Route path='/admin' element={<ProtectedRoute role='admin'> <AdminDashboard /> </ProtectedRoute>} />
 
       {/* TRAINER */}
-      <Route
-        path='/trainer'
-        element={
-          <ProtectedRoute role='trainer'>
-            <TrainerDashboard />
-          </ProtectedRoute>
-        }
-      />
+      <Route path='/trainer' element={<ProtectedRoute role='trainer'> <TrainerDashboard /> </ProtectedRoute>} />
 
 
       {/* STUDENT */}
-      <Route
-        path='/student'
-        element={
-          <ProtectedRoute role='student'>
-            <StudentDashboard />
-          </ProtectedRoute>
-        }
-      />
+      <Route path='/student' element={<ProtectedRoute role='student'> <StudentDashboard /> </ProtectedRoute>} />
 
       {/* STUDENT COURSE DETAIL */}
-      <Route
-        path='/course/:id'
-        element={
-          <ProtectedRoute role='student'>
-            <CourseDetail />
-          </ProtectedRoute>
-        }
-      />
+      <Route path='/course/:id' element={<ProtectedRoute role='student'> <CourseDetail /> </ProtectedRoute>} />
 
       {/* ADMIN ONLY */}
-      <Route
-        path='/create-user'
-        element={
-          <ProtectedRoute role='admin'>
-            <CreateUser />
-          </ProtectedRoute>
-        }
-      />
+      <Route path='/create-user' element={<ProtectedRoute role='admin'> <CreateUser /> </ProtectedRoute>} />
 
+      {/* ENROLL STUDENT */}
+      <Route path='/enroll' element={<ProtectedRoute role='admin'> <EnrollStudent /> </ProtectedRoute>} />
 
-      <Route
-        path='/enroll'
-        element={
-          <ProtectedRoute role='admin'>
-            <EnrollStudent />
-          </ProtectedRoute>
-        }
-      />
-
-
-      <Route
-        path='/manage-courses'
-        element={
-          <ProtectedRoute role='admin'>
-            <ManageCourses />
-          </ProtectedRoute>
-        }
-      />
-
+      {/* MANAGE COURSES */}
+      <Route path='/manage-courses' element={<ProtectedRoute role='admin'> <ManageCourses /> </ProtectedRoute>} />
 
       {/* ADMIN + TRAINER */}
-      <Route
-        path='/create-course'
-        element={
-          <MultiRoleRoute
-            roles={[
-              'admin',
-              'trainer'
-            ]}
-          >
-            <CreateCourse />
-          </MultiRoleRoute>
-        }
-      />
+      <Route path='/create-course' element={<MultiRoleRoute roles={['admin', 'trainer']}> <CreateCourse /> </MultiRoleRoute>} />
 
-
-      <Route
-        path='/add-video'
-        element={
-          <MultiRoleRoute
-            roles={[
-              'admin',
-              'trainer'
-            ]}
-          >
-            <AddVideo />
-          </MultiRoleRoute>
-        }
-      />
-
+      {/* ADD VIDEO */}
+      <Route path='/add-video' element={<MultiRoleRoute roles={['admin', 'trainer']}> <AddVideo /> </MultiRoleRoute>} />
 
       {/* LOGOUT */}
       <Route
@@ -359,14 +284,11 @@ function App() {
         }
       />
 
-      {/* fallback */}
-      <Route
-        path='*'
-        element={
-          <Navigate to='/' />
-        }
-      />
+        {/* WATCH COURSE */}
+        <Route path="/watch-course/:courseId/:videoId" element={<WatchCourse />}/>
 
+      {/* fallback */}
+      <Route path='*' element={<Navigate to='/' />}/>
 
     </Routes>
 

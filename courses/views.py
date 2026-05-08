@@ -1,12 +1,9 @@
-from urllib import request
 
 from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .models import Course, VideoProgress
-from .models import Video, Course
-from .models import Enrollment, User
+from .models import ContinueWatching, Course, VideoProgress, Video, Enrollment, User
 from django.contrib.auth import get_user_model
 from accounts.utils import validate_session
 User = get_user_model()
@@ -53,42 +50,21 @@ def create_course(request):
 def edit_course(request, course_id):
 
     session_check= validate_session(request)
-
     if session_check:
         return session_check
 
-
-    if request.user.role not in [
-      'admin',
-      'trainer'
-    ]:
-        return Response(
-         {'error':'Unauthorized'},
-         status=403
-        )
-
+    if request.user.role not in ['admin', 'trainer']:
+        return Response({'error':'Unauthorized'}, status=403)
 
     try:
-
-        course=Course.objects.get(
-          id=course_id
-        )
-
+        course=Course.objects.get(id=course_id, is_archived=False)
     except Course.DoesNotExist:
-
-        return Response(
-         {'error':'Course not found'},
-         status=404
-        )
+        return Response({'error':'Course not found'}, status=404)
 
 
     # Trainer can edit only own course
     if (request.user.role=='trainer' and course.trainer != request.user):
-
-        return Response(
-         {'error':'Unauthorized'},
-         status=403
-        )
+        return Response({'error': 'Unauthorized'}, status=403)
 
 
     course.title= request.data.get('title', course.title)
@@ -104,7 +80,8 @@ def edit_course(request, course_id):
       'Course updated successfully'
     })
 
-# Admin can see all courses, Trainer can see their courses, Student can see all courses (for enrollment)
+
+# Admin and Trainer can see all courses, Student can see all courses (for enrollment)
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def all_courses(request):
@@ -114,10 +91,7 @@ def all_courses(request):
         return session_check
 
     if request.user.role!='admin':
-        return Response(
-          {'error':'Unauthorized'},
-          status=403
-        )
+        return Response({'error':'Unauthorized'}, status=403)
 
     courses=Course.objects.filter(is_archived=False)
 
@@ -153,36 +127,18 @@ def archive_course(request, course_id):
         return session_check
 
 
-    if request.user.role not in [
-      'admin',
-      'trainer'
-    ]:
-        return Response(
-         {'error':'Unauthorized'},
-         status=403
-        )
+    if request.user.role not in ['admin', 'trainer']:
+        return Response({'error':'Unauthorized'}, status=403)
 
     try:
-        course = Course.objects.get(id=course_id)
+        course = Course.objects.get(id=course_id, is_archived=False)
 
     except Course.DoesNotExist:
-
-        return Response(
-         {'error':'Not found'},
-         status=404
-        )
+        return Response({'error':'Not found'}, status=404)
 
 
-    if(
-      request.user.role=='trainer'
-      and
-      course.trainer!=request.user
-    ):
-        return Response(
-         {'error':'Unauthorized'},
-         status=403
-        )
-
+    if(request.user.role=='trainer' and course.trainer!=request.user):
+        return Response({'error':'Unauthorized'}, status=403)
 
     course.is_archived=True
     course.save()
@@ -194,6 +150,7 @@ def archive_course(request, course_id):
     })
 
 
+# Admin+Trainer can add videos
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_video(request):
@@ -244,6 +201,7 @@ def add_video(request):
             'course': course.title
         }
     })
+
 
 # Admin can enroll any student to any course, Trainer can enroll students to their courses, but cannot enroll themselves. Students cannot enroll others.
 @api_view(['POST'])
@@ -297,17 +255,15 @@ def enroll_student(request):
     })
 
 
-# Student can see their enrolled courses with progress, Admin can see all courses, Trainer can see their courses. Archived courses won't be visible to students for enrollment, but existing enrollments remain unaffected.
+# Student can see their enrolled courses with progress, Admin can see all courses,  Archived courses won't be visible to students for enrollment, but existing enrollments remain unaffected.
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def student_courses(request):
 
-    # 🔐 Validate active session
     session_check = validate_session(request)
     if session_check:
         return session_check
 
-    # Only students allowed
     if request.user.role != 'student':
         return Response({'error':'Unauthorized'}, status=403)
 
@@ -321,7 +277,6 @@ def student_courses(request):
             course=course
         )
 
-        # 🔥 Progress calculation
         total_videos = videos.count()
 
         completed_videos = VideoProgress.objects.filter(
@@ -340,12 +295,10 @@ def student_courses(request):
         data.append({
             'id': course.id,
             'course': course.title,
-            # optional metadata
             'description': course.description,
             'category': course.category,
             'level': course.level,
             'duration': course.duration,
-            # progress %
             'progress': progress,
 
             'videos': [
@@ -354,14 +307,12 @@ def student_courses(request):
                     'title': v.title,
                     'description': v.description,
                     'link': v.youtube_link,
-
-                    # whether this video completed
                     'completed':
-                    VideoProgress.objects.filter(
-                       student=request.user,
-                       video=v,
-                       completed=True
-                    ).exists()
+                        VideoProgress.objects.filter(
+                            student=request.user,
+                            video=v,
+                            completed=True
+                        ).exists()
                 }
                 for v in videos
             ]
@@ -370,6 +321,7 @@ def student_courses(request):
     return Response(data)
 
 
+# List all courses
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_courses(request):
@@ -378,7 +330,7 @@ def list_courses(request):
     if session_check:
         return session_check
     
-    courses = Course.objects.all().values('id', 'title')
+    courses = Course.objects.filter(is_archived=False).values('id', 'title')
     return Response(list(courses))
 
 
@@ -386,8 +338,17 @@ def list_courses(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def mark_video_complete(request):
+
+    session_check = validate_session(request)
+    if session_check:
+        return session_check
+
     video_id=request.data.get('video_id')
-    video=Video.objects.get(id=video_id)
+
+    try:
+        video=Video.objects.get(id=video_id)
+    except Video.DoesNotExist:
+        return Response({'error':'Video not found'}, status=404)
 
     progress,created = VideoProgress.objects.get_or_create(student=request.user, video=video)
 
@@ -410,11 +371,7 @@ def list_enrollments(request):
     data=[]
 
     for e in enrollments:
-
-        data.append({
-            'id':e.id, 'student_name':e.student.username, 'course_title':e.course.title
-        })
-
+        data.append({'id':e.id, 'student_name':e.student.username, 'course_title':e.course.title})
 
     return Response(data)
 
@@ -427,7 +384,11 @@ def delete_enrollment(request, enrollment_id):
     if request.user.role!='admin':
         return Response({'error':'Unauthorized'}, status=403)
 
-    enrollment=Enrollment.objects.get(id=enrollment_id)
+    try:
+        enrollment=Enrollment.objects.get(id=enrollment_id)
+    except Enrollment.DoesNotExist:
+        return Response({'error':'Enrollment not found'}, status=404)
+    
     enrollment.delete()
 
     return Response({
@@ -436,36 +397,164 @@ def delete_enrollment(request, enrollment_id):
     })
 
 
-# Trainer can see their courses and progress stats
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-# def trainer_courses(request):
+# Student can watch course
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def watch_course(request, course_id, video_id):
 
-#     session_check=validate_session(request)
+    session_check = validate_session(request)
+    if session_check:
+        return session_check
 
-#     if session_check:
-#         return session_check
+    if request.user.role != 'student':
+        return Response({'error': 'Unauthorized'}, status=403)
 
-#     if request.user.role!='trainer':
-#         return Response({'error':'Unauthorized'}, status=403)
+    try:
+        course = Course.objects.get(id=course_id, is_archived=False)
+    except Course.DoesNotExist:
+        return Response({'error': 'Course not found'}, status=404)
 
-#     courses=Course.objects.filter(trainer=request.user, is_archived=False)
+    enrolled = Enrollment.objects.filter(student=request.user, course=course).exists()
 
-#     data=[]
+    if not enrolled:
+        return Response({'error': 'Not enrolled'}, status=403)
 
-#     for c in courses:
-#         videos_count=Video.objects.filter(course=c).count()
+    try:
+        current_video = Video.objects.get(id=video_id, course=course)
+    except Video.DoesNotExist:
+        return Response({'error': 'Video not found'}, status=404)
 
-#         data.append({
-#          'id':c.id,
-#          'title':c.title,
-#          'description':c.description,
-#          'category':c.category,
-#          'level':c.level,
-#          'duration':c.duration,
-#          'videos_count':videos_count,
-#          'created_by': f"{c.trainer.role.capitalize()} ({c.trainer.username})"
-#         })
+    videos = Video.objects.filter(course=course)
+    
+    ContinueWatching.objects.update_or_create(
+        student=request.user,
+        course=course,
+        defaults={'last_video': current_video}
+    )
 
 
-#     return Response(data)
+    return Response({
+        "course": {
+            "id": course.id,
+            "title": course.title,
+        },
+
+        "current_video": {
+            "id": current_video.id,
+            "title": current_video.title,
+            "description": current_video.description,
+            "youtube_link": current_video.youtube_link
+        },
+
+        "videos": [{"id": v.id, "title": v.title}
+            for v in videos
+        ]
+
+    })
+
+
+# Course Details
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def course_details(request, course_id):
+
+    session_check = validate_session(request)
+    if session_check:
+        return session_check
+
+    try:
+        course = Course.objects.get(id=course_id, is_archived=False)
+    except Course.DoesNotExist:
+        return Response({'error': 'Course not found'}, status=404)
+
+    return Response({
+        "id": course.id,
+        "title": course.title,
+        "description": course.description,
+        "category": getattr(course, 'category', ''),
+        "level": getattr(course, 'level', ''),
+        "duration": getattr(course, 'duration', ''),
+    })
+
+
+# List videos of a course with completion status for the student
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def course_videos(request, course_id):
+
+    session_check = validate_session(request)
+    if session_check:
+        return session_check
+
+    videos = Video.objects.filter(course_id=course_id)
+
+    data = []
+
+    for v in videos:
+
+        completed = VideoProgress.objects.filter(
+            student=request.user,
+            video=v,
+            completed=True
+        ).exists()
+
+        data.append({
+            "id": v.id,
+            "title": v.title,
+            "description": v.description,
+            "link": v.youtube_link,
+            "completed": completed
+        })
+
+    return Response(data)
+
+# Continue watchning
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def continue_watching(request):
+
+    session_check = validate_session(request)
+    if session_check:
+        return session_check
+
+    data = []
+
+    records = ContinueWatching.objects.filter(student=request.user).select_related('course', 'last_video')
+
+    for item in records:
+        data.append({
+            "course_id": item.course.id,
+            "course_title": item.course.title,
+            "video_id": item.last_video.id,
+            "video_title": item.last_video.title,
+            "updated_at": item.updated_at
+        })
+
+    return Response(data)
+
+
+# Track video
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def track_video_watch(request):
+
+    session_check = validate_session(request)
+    if session_check:
+        return session_check
+
+    course_id = request.data.get('course_id')
+    video_id = request.data.get('video_id')
+
+    try:
+        course = Course.objects.get(id=course_id)
+        video = Video.objects.get(id=video_id, course=course)
+    except:
+        return Response({'error': 'Invalid course/video'}, status=400)
+
+    ContinueWatching.objects.update_or_create(
+        student=request.user,
+        course=course,
+        defaults={'last_video': video}
+    )
+
+    return Response({'message': 'Tracking updated'})
