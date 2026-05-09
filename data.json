@@ -1,0 +1,893 @@
+[
+{
+  "model": "admin.logentry",
+  "pk": 1,
+  "fields": {
+    "action_time": "2026-04-22T13:55:59.132Z",
+    "user": 1,
+    "content_type": 6,
+    "object_id": "1",
+    "object_repr": "admin",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Role\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 2,
+  "fields": {
+    "action_time": "2026-04-23T07:53:23.768Z",
+    "user": 1,
+    "content_type": 9,
+    "object_id": "4",
+    "object_repr": "Operating System (Operating System)",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Description\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 3,
+  "fields": {
+    "action_time": "2026-04-23T07:53:28.756Z",
+    "user": 1,
+    "content_type": 9,
+    "object_id": "3",
+    "object_repr": "Test Video (Python)",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Description\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 4,
+  "fields": {
+    "action_time": "2026-04-23T07:53:43.722Z",
+    "user": 1,
+    "content_type": 9,
+    "object_id": "2",
+    "object_repr": "Java (Data Sceince)",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Description\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 5,
+  "fields": {
+    "action_time": "2026-04-23T07:53:47.323Z",
+    "user": 1,
+    "content_type": 9,
+    "object_id": "1",
+    "object_repr": "python (Python)",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Description\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 6,
+  "fields": {
+    "action_time": "2026-04-27T06:27:36.095Z",
+    "user": 1,
+    "content_type": 6,
+    "object_id": "3",
+    "object_repr": "njhulmani",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Username\", \"First name\", \"Last name\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 7,
+  "fields": {
+    "action_time": "2026-04-29T07:54:40.207Z",
+    "user": 1,
+    "content_type": 7,
+    "object_id": "1",
+    "object_repr": "1 - Python",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Is archived\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 8,
+  "fields": {
+    "action_time": "2026-04-30T08:58:11.903Z",
+    "user": 1,
+    "content_type": 7,
+    "object_id": "1",
+    "object_repr": "1 - Python",
+    "action_flag": 2,
+    "change_message": "[]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 9,
+  "fields": {
+    "action_time": "2026-04-30T08:58:42.718Z",
+    "user": 1,
+    "content_type": 9,
+    "object_id": "1",
+    "object_repr": "python (Python)",
+    "action_flag": 2,
+    "change_message": "[]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 10,
+  "fields": {
+    "action_time": "2026-05-01T06:10:27.719Z",
+    "user": 1,
+    "content_type": 7,
+    "object_id": "12",
+    "object_repr": "12 - NLP",
+    "action_flag": 2,
+    "change_message": "[]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 11,
+  "fields": {
+    "action_time": "2026-05-03T05:52:51.965Z",
+    "user": 1,
+    "content_type": 6,
+    "object_id": "1",
+    "object_repr": "admin",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Email\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 12,
+  "fields": {
+    "action_time": "2026-05-08T16:14:52.160Z",
+    "user": 1,
+    "content_type": 6,
+    "object_id": "2",
+    "object_repr": "student1",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Phone\"]}}]"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "0bvgnhhbfqjahzymzetccr3kbl9309y3",
+  "fields": {
+    "session_data": ".eJxVjDsOwjAQBe_iGllZ_JFNSc8ZrF3vGgeQI8VJFXF3iJQC2jczb1MJ16WmtcucRlYXBer0uxHmp7Qd8APbfdJ5ass8kt4VfdCubxPL63q4fwcVe_3WvoBxAhmEZEAxkfxgsy3iKQQTnYvGWi5AUjD4QICMxtvCEK0_F1LvD_PTOGc:1wFXMZ:NqkPpVTzb9mjggpKlx7kX1WS1BEuDGNzKrOeJWBByFI",
+    "expire_date": "2026-05-06T13:11:31.241Z"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "brec19aegaki57nwy9zksny5nx0z83m6",
+  "fields": {
+    "session_data": ".eJxVjDsOwjAQRO_iGlnrD5aWkp4zWPZ6FweQLcVJhbg7iZQCutG8N_NWMa1LjevgOU5FXZRRp98uJ3py20F5pHbvmnpb5inrXdEHHfrWC7-uh_t3UNOo2zoET1YsWnYBhA1IKQ4yIgmJ8ZzPDkEkkck2swAa41GAtowliFWfL_k-OO4:1wJSaa:2VX4xMpuw_Mf9AwcLG8H9B1ulqQH-sBtx1CWuYyjSuA",
+    "expire_date": "2026-05-17T08:54:12.290Z"
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$gKn3r1QeHprwPEodvJXhcP$qq7Ddk3HX18J6WnI19nS0RkvCrLS/icMOi/ftLbtg6Q=",
+    "last_login": "2026-05-03T08:54:12.289Z",
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-04-22T13:10:45Z",
+    "role": "admin",
+    "phone": null,
+    "email": "admin@gmail.com",
+    "is_verified": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 2,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$ZtJR4200ygpiULb7ewS7E5$bWBomg7gaktd5iTZgF9oEyzvvjEc0ZerFO9GUw+3AO8=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "student1",
+    "first_name": "TestStudent",
+    "last_name": "Test",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-04-22T16:05:03Z",
+    "role": "student",
+    "phone": "1234567890",
+    "email": "user1@gmail.com",
+    "is_verified": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 3,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$ErerUOo4US6qQDGjtuQ8eL$1cZ3xC+7dPQ5rHNlctisI15kKTAHniEDkEfKAqq2K0M=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "njhulmani",
+    "first_name": "Nagaraj",
+    "last_name": "Hulmani",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-04-22T18:48:30Z",
+    "role": "student",
+    "phone": null,
+    "email": "user2@gmail.com",
+    "is_verified": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 4,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$r0WAuYRSAoFhgK66z0jtl7$f96uHbJ7vGC1qH34dn2J6VHsjb1G709pjJxvtORIQk8=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "trainer2",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-04-22T18:49:06.720Z",
+    "role": "trainer",
+    "phone": null,
+    "email": "user3@gmail.com",
+    "is_verified": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 5,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$34r8UjUJaMeJyorx9T04Gh$9i/aLIcIYQjeGAfJLBtArcq7HjBhvpOEyD3Nc/XKiNY=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "testuser1",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-04-22T19:33:07.818Z",
+    "role": "student",
+    "phone": null,
+    "email": "user4@gmail.com",
+    "is_verified": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 6,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$e5vt0lRKibmVvcLPUGmU2D$M2L/xOqFJndLBzuYu1hHDmkqShOsBelG2iLp+e4Pn74=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "studentTest2",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-04-23T05:17:53.959Z",
+    "role": "student",
+    "phone": null,
+    "email": "user5@gmail.com",
+    "is_verified": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 7,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$a5An4DE9UBImyUUJHT5KC4$U/KJFPcmbs20sWeYQSL4bBBTAWKNkCKjwoE2vRss0Ro=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "tainerTest1",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-04-23T05:18:12.618Z",
+    "role": "trainer",
+    "phone": null,
+    "email": "user6@gmail.com",
+    "is_verified": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 8,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$PIafpq82cGwEHaZBqDKKkW$cvqIi9GC4FITL1xo+rLuZIHdYvrhBw1HKZIAEJ4rzAU=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "Trainer2",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-04-24T04:02:18.259Z",
+    "role": "trainer",
+    "phone": null,
+    "email": "user7@gmail.com",
+    "is_verified": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 9,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$EVWTyohASU8TsNKW95EIGO$/E0dvahCHZCnNLtHH0Y1t7Vx+Y5ZDJA9mJc329Q0vns=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "SidduK",
+    "first_name": "Siddu",
+    "last_name": "K",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-04-29T17:41:58.929Z",
+    "role": "student",
+    "phone": null,
+    "email": "user8@gmail.com",
+    "is_verified": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 10,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$ZB0g4esRhVy3W5uTlvrYnI$QKHyyBzc/yRJYHPxx+o+qCeVhnu62BGhn9PGq9ImhIQ=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "desairam",
+    "first_name": "Ram",
+    "last_name": "Desai",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-04-30T08:15:19.304Z",
+    "role": "student",
+    "phone": null,
+    "email": "user9@gmail.com",
+    "is_verified": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "pk": 11,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$qviLg2ZBD0rsUuMffZkxLa$8ih7YxfqJT2DvNkB1E7JRWlqgB8nyEhcbgvaJ6aPgdk=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "rakesh_trainer",
+    "first_name": "Rakesh",
+    "last_name": "Jain",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-04-30T08:17:52.953Z",
+    "role": "trainer",
+    "phone": null,
+    "email": "user10@gmail.com",
+    "is_verified": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.usersession",
+  "pk": 290,
+  "fields": {
+    "user": 4,
+    "session_token": "710383c5-8230-4dd7-83f9-cc5eecfb0909",
+    "ip_address": null,
+    "device_info": null,
+    "created_at": "2026-05-07T06:51:23.685Z",
+    "last_activity": "2026-05-07T06:52:08.886Z",
+    "expires_at": "2026-05-07T07:22:08.885Z",
+    "is_active": true
+  }
+},
+{
+  "model": "accounts.usersession",
+  "pk": 306,
+  "fields": {
+    "user": 3,
+    "session_token": "c415edce-d0d0-4387-893d-e8f765e837a6",
+    "ip_address": null,
+    "device_info": null,
+    "created_at": "2026-05-08T14:52:41.198Z",
+    "last_activity": "2026-05-08T14:53:12.499Z",
+    "expires_at": "2026-05-08T15:23:12.494Z",
+    "is_active": false
+  }
+},
+{
+  "model": "accounts.usersession",
+  "pk": 312,
+  "fields": {
+    "user": 1,
+    "session_token": "50192683-3542-4dfe-9f05-74ccbc1a3d3d",
+    "ip_address": "127.0.0.1",
+    "device_info": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
+    "created_at": "2026-05-09T06:22:11.876Z",
+    "last_activity": "2026-05-09T06:22:34.506Z",
+    "expires_at": "2026-05-09T06:52:34.506Z",
+    "is_active": false
+  }
+},
+{
+  "model": "accounts.usersession",
+  "pk": 313,
+  "fields": {
+    "user": 2,
+    "session_token": "370c4321-c136-4789-8a63-f47eedee44fa",
+    "ip_address": "127.0.0.1",
+    "device_info": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
+    "created_at": "2026-05-09T06:22:42.829Z",
+    "last_activity": "2026-05-09T06:23:58.232Z",
+    "expires_at": "2026-05-09T06:52:47.210Z",
+    "is_active": true
+  }
+},
+{
+  "model": "accounts.passwordresettoken",
+  "pk": 1,
+  "fields": {
+    "user": 2,
+    "token": "3c668521-5f96-4868-bb9c-c2b62950100d",
+    "created_at": "2026-05-03T06:02:09.151Z",
+    "expires_at": "2026-05-03T09:13:40.377Z"
+  }
+},
+{
+  "model": "accounts.passwordresettoken",
+  "pk": 4,
+  "fields": {
+    "user": 2,
+    "token": "814356c5-0f2b-45c6-94f2-507bf24374bd",
+    "created_at": "2026-05-03T09:30:01.845Z",
+    "expires_at": "2026-05-03T09:30:31.844Z"
+  }
+},
+{
+  "model": "courses.course",
+  "pk": 1,
+  "fields": {
+    "title": "Python",
+    "description": "Python Programming Language",
+    "category": "Programming",
+    "level": "Beginner",
+    "duration": "8 weeks",
+    "trainer": 1,
+    "is_archived": false
+  }
+},
+{
+  "model": "courses.course",
+  "pk": 2,
+  "fields": {
+    "title": "Data Sceince",
+    "description": "Data Science is an interdisciplinary field that uses statistics, programming, machine learning, and data analysis techniques to extract useful insights and knowledge from data. It helps organizations make better decisions by identifying patterns, trends, and predictions from large amounts of structured and unstructured data.",
+    "category": "Data Science",
+    "level": "Intermediate",
+    "duration": "5 weeks",
+    "trainer": 1,
+    "is_archived": false
+  }
+},
+{
+  "model": "courses.course",
+  "pk": 3,
+  "fields": {
+    "title": "Java",
+    "description": "abc",
+    "category": "Programming",
+    "level": "Intermediate",
+    "duration": "8 weeks",
+    "trainer": 1,
+    "is_archived": false
+  }
+},
+{
+  "model": "courses.course",
+  "pk": 4,
+  "fields": {
+    "title": "Operating System",
+    "description": "",
+    "category": "",
+    "level": "",
+    "duration": "",
+    "trainer": 1,
+    "is_archived": false
+  }
+},
+{
+  "model": "courses.course",
+  "pk": 5,
+  "fields": {
+    "title": "Computer Networks",
+    "description": "",
+    "category": "",
+    "level": "",
+    "duration": "",
+    "trainer": 1,
+    "is_archived": false
+  }
+},
+{
+  "model": "courses.course",
+  "pk": 6,
+  "fields": {
+    "title": "Python Pandas",
+    "description": "Pandas is a python library, It handles data for AI/ML algorithms.",
+    "category": "Data Science",
+    "level": "Beginner",
+    "duration": "5 weeks",
+    "trainer": 1,
+    "is_archived": false
+  }
+},
+{
+  "model": "courses.course",
+  "pk": 7,
+  "fields": {
+    "title": "Python Numpy",
+    "description": "Python Numpy is a library of python having rich set of functions to handle numeric operations such as Array etc.",
+    "category": "Data Science",
+    "level": "Beginner",
+    "duration": "6 Weeks",
+    "trainer": 1,
+    "is_archived": false
+  }
+},
+{
+  "model": "courses.course",
+  "pk": 8,
+  "fields": {
+    "title": "Django",
+    "description": "Django is a backend framework of Python, it's having in built libraries to handle MVT.",
+    "category": "Programming",
+    "level": "Intermediate",
+    "duration": "6 Weeks",
+    "trainer": 1,
+    "is_archived": false
+  }
+},
+{
+  "model": "courses.course",
+  "pk": 9,
+  "fields": {
+    "title": "Flask",
+    "description": "Python Framework",
+    "category": "Programming",
+    "level": "Beginner",
+    "duration": "4 weeks",
+    "trainer": 4,
+    "is_archived": false
+  }
+},
+{
+  "model": "courses.course",
+  "pk": 10,
+  "fields": {
+    "title": "OS",
+    "description": "Operating System",
+    "category": "Computer Networks",
+    "level": "Advanced",
+    "duration": "6 weeks",
+    "trainer": 1,
+    "is_archived": true
+  }
+},
+{
+  "model": "courses.course",
+  "pk": 11,
+  "fields": {
+    "title": "OS",
+    "description": "Operating System",
+    "category": "Computer Networks",
+    "level": "Advanced",
+    "duration": "6 weeks",
+    "trainer": 4,
+    "is_archived": false
+  }
+},
+{
+  "model": "courses.course",
+  "pk": 12,
+  "fields": {
+    "title": "NLP",
+    "description": "Natural Language Processing",
+    "category": "Data Science",
+    "level": "Intermediate",
+    "duration": "3 weeks",
+    "trainer": 1,
+    "is_archived": false
+  }
+},
+{
+  "model": "courses.video",
+  "pk": 1,
+  "fields": {
+    "course": 1,
+    "title": "python",
+    "description": "This video explains Python basics and syntax.",
+    "youtube_link": "https://youtu.be/vLqTf2b6GZw?si=TIltpobTJikSpuY3"
+  }
+},
+{
+  "model": "courses.video",
+  "pk": 2,
+  "fields": {
+    "course": 2,
+    "title": "Java",
+    "description": "This video explains Python basics and syntax.",
+    "youtube_link": "https://youtu.be/UmnCZ7-9yDY?si=TeOWQWT0LELkcqMg"
+  }
+},
+{
+  "model": "courses.video",
+  "pk": 3,
+  "fields": {
+    "course": 1,
+    "title": "Test Video",
+    "description": "\"This video explains Python basics and syntax.\"",
+    "youtube_link": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+  }
+},
+{
+  "model": "courses.video",
+  "pk": 4,
+  "fields": {
+    "course": 4,
+    "title": "Operating System",
+    "description": "This video explains Python basics and syntax",
+    "youtube_link": "https://youtu.be/8XBtAjKwCm4?si=DHylGgL9Bf_Yww9W"
+  }
+},
+{
+  "model": "courses.video",
+  "pk": 5,
+  "fields": {
+    "course": 1,
+    "title": "Python",
+    "description": null,
+    "youtube_link": "https://youtu.be/rfscVS0vtbw"
+  }
+},
+{
+  "model": "courses.video",
+  "pk": 6,
+  "fields": {
+    "course": 5,
+    "title": "Computer Networks Basics",
+    "description": "Computer networks enable devices to communicate, share resources, and exchange data efficiently across local and global systems.",
+    "youtube_link": "https://youtu.be/IPvYjXCsTg8?si=2dNOr8HBuKDqZzgl"
+  }
+},
+{
+  "model": "courses.video",
+  "pk": 7,
+  "fields": {
+    "course": 9,
+    "title": "Flask Framework for Beginners",
+    "description": "Python framework",
+    "youtube_link": "https://youtu.be/oA8brF3w5XQ?si=DdjYLKat9B37O3VG"
+  }
+},
+{
+  "model": "courses.video",
+  "pk": 8,
+  "fields": {
+    "course": 9,
+    "title": "Flask Framework for Beginners",
+    "description": "Flask Framework",
+    "youtube_link": "https://youtu.be/Z1RJmh_OqeA?si=ivTmE-xaMQ0KXXud"
+  }
+},
+{
+  "model": "courses.video",
+  "pk": 9,
+  "fields": {
+    "course": 2,
+    "title": "Data Science Full Course",
+    "description": "Data science is an interdisciplinary field that extracts actionable insights from structured and unstructured data using algorithms, scientific methods, and systems.\n\nIt combines principles from statistics, mathematics, and computer engineering to solve complex problems and drive informed decision-making.",
+    "youtube_link": "https://youtu.be/-ETQ97mXXF0?si=P1InT4mgJtpH6eRo"
+  }
+},
+{
+  "model": "courses.enrollment",
+  "pk": 1,
+  "fields": {
+    "student": 2,
+    "course": 1
+  }
+},
+{
+  "model": "courses.enrollment",
+  "pk": 2,
+  "fields": {
+    "student": 2,
+    "course": 2
+  }
+},
+{
+  "model": "courses.enrollment",
+  "pk": 4,
+  "fields": {
+    "student": 6,
+    "course": 5
+  }
+},
+{
+  "model": "courses.enrollment",
+  "pk": 5,
+  "fields": {
+    "student": 2,
+    "course": 6
+  }
+},
+{
+  "model": "courses.enrollment",
+  "pk": 6,
+  "fields": {
+    "student": 3,
+    "course": 7
+  }
+},
+{
+  "model": "courses.enrollment",
+  "pk": 7,
+  "fields": {
+    "student": 3,
+    "course": 9
+  }
+},
+{
+  "model": "courses.enrollment",
+  "pk": 8,
+  "fields": {
+    "student": 2,
+    "course": 10
+  }
+},
+{
+  "model": "courses.enrollment",
+  "pk": 9,
+  "fields": {
+    "student": 5,
+    "course": 2
+  }
+},
+{
+  "model": "courses.videoprogress",
+  "pk": 1,
+  "fields": {
+    "student": 2,
+    "video": 1,
+    "completed": true,
+    "completed_at": "2026-04-24T14:32:05.301Z"
+  }
+},
+{
+  "model": "courses.videoprogress",
+  "pk": 2,
+  "fields": {
+    "student": 2,
+    "video": 3,
+    "completed": true,
+    "completed_at": "2026-04-29T07:55:15.232Z"
+  }
+},
+{
+  "model": "courses.videoprogress",
+  "pk": 3,
+  "fields": {
+    "student": 2,
+    "video": 2,
+    "completed": true,
+    "completed_at": "2026-05-04T17:02:35.466Z"
+  }
+},
+{
+  "model": "courses.videoprogress",
+  "pk": 4,
+  "fields": {
+    "student": 2,
+    "video": 5,
+    "completed": true,
+    "completed_at": "2026-05-08T14:08:18.961Z"
+  }
+},
+{
+  "model": "courses.continuewatching",
+  "pk": 1,
+  "fields": {
+    "student": 2,
+    "course": 1,
+    "last_video": 5,
+    "updated_at": "2026-05-09T06:23:19.061Z"
+  }
+},
+{
+  "model": "courses.continuewatching",
+  "pk": 2,
+  "fields": {
+    "student": 2,
+    "course": 2,
+    "last_video": 2,
+    "updated_at": "2026-05-08T16:14:12.956Z"
+  }
+},
+{
+  "model": "courses.continuewatching",
+  "pk": 3,
+  "fields": {
+    "student": 3,
+    "course": 9,
+    "last_video": 7,
+    "updated_at": "2026-05-08T14:52:44.033Z"
+  }
+},
+{
+  "model": "authtoken.token",
+  "pk": "026ea419a3649238155597109b01efba2ecaa3b3",
+  "fields": {
+    "user": 3,
+    "created": "2026-05-04T17:13:54.248Z"
+  }
+},
+{
+  "model": "authtoken.token",
+  "pk": "2f6708c26d18891b7eda81bdaf104c87474ac60d",
+  "fields": {
+    "user": 1,
+    "created": "2026-05-01T12:58:34.760Z"
+  }
+},
+{
+  "model": "authtoken.token",
+  "pk": "9dce22366be0b98e94cae23021736404a4776ada",
+  "fields": {
+    "user": 2,
+    "created": "2026-05-01T07:53:37.172Z"
+  }
+},
+{
+  "model": "authtoken.token",
+  "pk": "bb284843da6579bc746786a8ab345008290f003b",
+  "fields": {
+    "user": 4,
+    "created": "2026-05-01T14:20:01.677Z"
+  }
+}
+]
