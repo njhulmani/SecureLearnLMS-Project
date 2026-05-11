@@ -530,20 +530,25 @@ def create_admin(request):
     user, created = User.objects.get_or_create(
         username='admin',
         defaults={
-            'email': 'admin@gmail.com'
+            'email': 'admin@gmail.com',
+            'role': 'admin'
         }
     )
 
-    user.set_password('admin123')
+    user.email = 'admin@gmail.com'
+    user.role = 'admin'
     user.is_staff = True
     user.is_superuser = True
     user.is_active = True
+
+    user.set_password('admin123')
+
     user.save()
 
     return Response({
+        "message": "Admin ready successfully",
         "created": created,
-        "username": user.username,
         "is_staff": user.is_staff,
         "is_superuser": user.is_superuser,
-        "is_active": user.is_active,
+        "role": user.role
     })
