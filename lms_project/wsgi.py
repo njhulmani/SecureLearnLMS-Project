@@ -15,7 +15,3 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'lms_project.settings')
 
 application = get_wsgi_application()
 
-
-from django.contrib.auth import get_user_model
-
-User = get_user_model() 
