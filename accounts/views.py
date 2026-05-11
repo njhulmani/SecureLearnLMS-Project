@@ -523,7 +523,6 @@ def current_user(request):
 
 # Temporary create admin
 @api_view(['GET'])
-@api_view(['GET'])
 def create_admin(request):
 
     User = get_user_model()
@@ -531,17 +530,20 @@ def create_admin(request):
     user, created = User.objects.get_or_create(
         username='admin',
         defaults={
-            'email': 'admin@gmail.com',
-            'is_staff': True,
-            'is_superuser': True,
+            'email': 'admin@gmail.com'
         }
     )
 
     user.set_password('admin123')
     user.is_staff = True
     user.is_superuser = True
+    user.is_active = True
     user.save()
 
     return Response({
-        "message": "Admin ready"
+        "created": created,
+        "username": user.username,
+        "is_staff": user.is_staff,
+        "is_superuser": user.is_superuser,
+        "is_active": user.is_active,
     })
