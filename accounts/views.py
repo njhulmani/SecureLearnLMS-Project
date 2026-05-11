@@ -1,3 +1,8 @@
+# temparary admin creation
+from django.contrib.auth import get_user_model
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
 from urllib import request
 
 from django.utils import timezone
@@ -514,3 +519,22 @@ def current_user(request):
         "role": user.role,
         "date_joined": user.date_joined,
     })
+
+
+# Temporary create admin
+@api_view(['GET'])
+def create_admin(request):
+
+    User = get_user_model()
+
+    if not User.objects.filter(username='admin').exists():
+
+        User.objects.create_superuser(
+            username='admin',
+            email='admin@gmail.com',
+            password='admin123'
+        )
+
+        return Response({"message": "Admin created successfully"})
+
+    return Response({"message": "Admin already exists"})
