@@ -309,15 +309,6 @@ function ActionCard({ label, description, buttonLabel, onClick, accent }) {
   );
 }
 
-function MetaPill({ label, value }) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-      <p className="text-xs uppercase tracking-[0.3em] text-slate-400">{label}</p>
-      <p className="mt-2 font-semibold text-white">{value}</p>
-    </div>
-  );
-}
-
 function InfoRow({ label, value }) {
   return (
     <div className="flex items-center justify-between rounded-2xl bg-slate-950/45 px-4 py-3">
@@ -327,14 +318,5 @@ function InfoRow({ label, value }) {
   );
 }
 
-function MiniFeature({ title, text }) {
-  return (
-    <div className="rounded-[1.5rem] border border-white/10 bg-slate-950/40 p-5">
-      <div className="mb-4 h-2 w-16 rounded-full bg-gradient-to-r from-cyan-400 to-fuchsia-400" />
-      <h4 className="text-lg font-semibold text-white">{title}</h4>
-      <p className="mt-2 text-sm leading-6 text-slate-300">{text}</p>
-    </div>
-  );
-}
 
 export default TrainerDashboard;

@@ -169,7 +169,7 @@ function StudentDashboard() {
 
     };
 
-  }, [showProfile]);
+  }, [showProfile, currentUser]);
 
   // ================= LOGOUT =================
   const handleLogout = async () => {
