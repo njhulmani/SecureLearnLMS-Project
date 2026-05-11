@@ -523,18 +523,25 @@ def current_user(request):
 
 # Temporary create admin
 @api_view(['GET'])
+@api_view(['GET'])
 def create_admin(request):
 
     User = get_user_model()
 
-    if not User.objects.filter(username='admin').exists():
+    user, created = User.objects.get_or_create(
+        username='admin',
+        defaults={
+            'email': 'admin@gmail.com',
+            'is_staff': True,
+            'is_superuser': True,
+        }
+    )
 
-        User.objects.create_superuser(
-            username='admin',
-            email='admin@gmail.com',
-            password='admin123'
-        )
+    user.set_password('admin123')
+    user.is_staff = True
+    user.is_superuser = True
+    user.save()
 
-        return Response({"message": "Admin created successfully"})
-
-    return Response({"message": "Admin already exists"})
+    return Response({
+        "message": "Admin ready"
+    })
