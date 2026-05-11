@@ -2,6 +2,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from django.contrib.auth.hashers import make_password
 
 from urllib import request
 
@@ -541,7 +542,7 @@ def create_admin(request):
     user.is_superuser = True
     user.is_active = True
 
-    user.set_password('admin123')
+    user.password = make_password('admin123')
 
     user.save()
 
