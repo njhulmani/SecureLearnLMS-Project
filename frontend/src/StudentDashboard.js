@@ -45,28 +45,14 @@ function StudentDashboard() {
   const fetchCourses = async () => {
 
     try {
-
       setLoading(true);
-
-      const response = await api.get(
-        '/api/student-courses/'
-      );
-
+      const response = await api.get('/api/student-courses/');
       setCourses(response.data || []);
-
     } catch (error) {
-
-      console.error(
-        'Error fetching courses:',
-        error
-      );
-
+      console.error('Error fetching courses:', error);
       setCourses([]);
-
     } finally {
-
       setLoading(false);
-
     }
   };
 
@@ -74,20 +60,10 @@ function StudentDashboard() {
   const fetchStats = async () => {
 
     try {
-
-      const res = await api.get(
-        '/api/student-stats/'
-      );
-
+      const res = await api.get('/api/student-stats/');
       setStats(res.data);
-
     } catch (error) {
-
-      console.error(
-        'Error fetching stats:',
-        error
-      );
-
+      console.error('Error fetching stats:', error);
     }
   };
 
@@ -200,10 +176,14 @@ function StudentDashboard() {
   };
 
   // ================= VIEW COURSE =================
+  // const handleViewCourse = (courseId) => {
+
+  //   navigate(`/course/${courseId}`);
+
+  // };
+
   const handleViewCourse = (courseId) => {
-
-    navigate(`/course/${courseId}`);
-
+    navigate(`/watch-course/${courseId}`);
   };
 
   // ================= CONTINUE DATA =================

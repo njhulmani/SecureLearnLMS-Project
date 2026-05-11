@@ -9,7 +9,6 @@ import ResetPassword from './pages/ResetPassword';
 import Home from './pages/Home';
 import Login from './Login';
 import WatchCourse from './pages/WatchCourse';
-import CourseDetail from './pages/CourseDetail';
 
 import AdminDashboard from './AdminDashboard';
 import TrainerDashboard from './TrainerDashboard';
@@ -234,9 +233,7 @@ function App() {
 
       {/* STUDENT */}
       <Route path='/student' element={<ProtectedRoute role='student'> <StudentDashboard /> </ProtectedRoute>} />
-
-      {/* STUDENT COURSE DETAIL */}
-      <Route path='/course/:id' element={<ProtectedRoute role='student'> <CourseDetail /> </ProtectedRoute>} />
+  
 
       {/* ADMIN ONLY */}
       <Route path='/create-user' element={<ProtectedRoute role='admin'> <CreateUser /> </ProtectedRoute>} />
@@ -285,7 +282,9 @@ function App() {
       />
 
         {/* WATCH COURSE */}
-        <Route path="/watch-course/:courseId/:videoId" element={<WatchCourse />}/>
+        <Route path="/watch-course/:courseId/:videoId?" 
+          element={<WatchCourse />}
+        />
 
       {/* fallback */}
       <Route path='*' element={<Navigate to='/' />}/>
