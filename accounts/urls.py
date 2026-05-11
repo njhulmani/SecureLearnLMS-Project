@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import active_sessions, admin_stats, create_admin, create_user, current_user, disable_user, edit_user, enable_user, forgot_password, list_users, login_api, list_students, force_logout, reset_password, student_stats, trainer_stats, logout_api
+from .views import active_sessions, admin_stats, create_user, current_user, disable_user, edit_user, enable_user, forgot_password, list_users, login_api, list_students, force_logout, reset_password, student_stats, trainer_stats, logout_api
 
 urlpatterns = [ 
     path('api/create-user/', create_user),
@@ -18,5 +18,4 @@ urlpatterns = [
     path('api/forgot-password/', forgot_password),
     path('api/reset-password/<uuid:token>/', reset_password),
     path('api/current-user/', current_user),
-    path('api/create-admin/', create_admin),
 ]

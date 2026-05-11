@@ -1,7 +1,4 @@
-# temparary admin creation
-from django.contrib.auth import get_user_model
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
+
 from django.contrib.auth.hashers import make_password
 
 from urllib import request
@@ -519,37 +516,4 @@ def current_user(request):
         "last_name": user.last_name,
         "role": user.role,
         "date_joined": user.date_joined,
-    })
-
-
-# Temporary create admin
-@api_view(['GET'])
-def create_admin(request):
-
-    User = get_user_model()
-
-    user, created = User.objects.get_or_create(
-        username='admin',
-        defaults={
-            'email': 'admin@gmail.com',
-            'role': 'admin'
-        }
-    )
-
-    user.email = 'admin@gmail.com'
-    user.role = 'admin'
-    user.is_staff = True
-    user.is_superuser = True
-    user.is_active = True
-
-    user.password = make_password('admin123')
-
-    user.save()
-
-    return Response({
-        "message": "Admin ready successfully",
-        "created": created,
-        "is_staff": user.is_staff,
-        "is_superuser": user.is_superuser,
-        "role": user.role
     })
