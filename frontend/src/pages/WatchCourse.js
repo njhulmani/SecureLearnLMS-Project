@@ -8,23 +8,11 @@ function WatchCourse() {
     const { courseId, videoId } = useParams();
     const navigate = useNavigate();
 
-    const currentUser = JSON.parse(localStorage.getItem('user'));
     const [isScreenBlocked, setIsScreenBlocked] = useState(false);
 
     const [showSidebar, setShowSidebar] = useState(true);
 
-    const [currentTime, setCurrentTime] = useState(
-        new Date().toLocaleString()
-    );
 
-    useEffect(() => {
-        const interval = setInterval(() => { setCurrentTime(new Date().toLocaleString()); }, 1000);
-        return () => clearInterval(interval);
-    }, []);
-
-    const fullName = `${currentUser?.first_name || ''} ${currentUser?.last_name || ''}`.trim() || 'Student';
-
-    // const watermarkText = `${fullName} • ${currentUser?.email || ''} • ${currentTime}`;
 
     // ================= STATES =================
     const [course, setCourse] = useState(null);
@@ -390,15 +378,6 @@ function WatchCourse() {
                         </div>
                     </div>
                 </div>
-
-                {/* ================= WATERMARK ================= */}
-                {/* <div className="pointer-events-none fixed inset-0 z-50 overflow-hidden">
-
-                    <div className="absolute top-20 left-10 rotate-[-25deg] text-white/5 text-3xl font-bold whitespace-nowrap">{watermarkText}</div>
-                    <div className="absolute top-1/2 left-1/3 rotate-[-25deg] text-white/5 text-3xl font-bold whitespace-nowrap">{watermarkText}</div>
-                    <div className="absolute bottom-20 right-10 rotate-[-25deg] text-white/5 text-3xl font-bold whitespace-nowrap">{watermarkText}</div>
-
-                </div> */}
 
                 {/* ================= SCREEN BLOCK OVERLAY ================= */}
                 {isScreenBlocked && (
