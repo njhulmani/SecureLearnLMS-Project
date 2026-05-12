@@ -11,9 +11,10 @@ function CreateUser() {
   const [lastName, setLastName] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
   const [role, setRole] = useState('student');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [feedback, setFeedback] = useState({type: '', text: ''});
+  const [feedback, setFeedback] = useState({ type: '', text: '' });
   const [users, setUsers] = useState([]);
 
 
@@ -23,11 +24,7 @@ function CreateUser() {
   const fetchUsers = async () => {
     try {
       const res = await api.get('/api/users/');
-
-      setUsers(
-        res.data
-      );
-
+      setUsers(res.data);
     } catch (error) {
       console.error(error);
     }
@@ -61,6 +58,7 @@ function CreateUser() {
 
     if (
       !username.trim() ||
+      !email.trim() ||
       !password ||
       !role
     ) {
@@ -82,6 +80,7 @@ function CreateUser() {
           {
             first_name: firstName,
             last_name: lastName,
+            email,
             username,
             password,
             role
@@ -99,6 +98,7 @@ function CreateUser() {
       setLastName('');
       setUsername('');
       setPassword('');
+      setEmail('');
       setRole('student');
 
       fetchUsers();
@@ -127,17 +127,9 @@ function CreateUser() {
     async (id) => {
 
       try {
-
-        await api.post(
-          `/api/disable-user/${id}/`
-        );
-
-        alert(
-          'User disabled'
-        );
-
+        await api.post(`/api/disable-user/${id}/`);
+        alert('User disabled');
         fetchUsers();
-
       } catch (error) {
         console.error(error);
       }
@@ -150,16 +142,9 @@ function CreateUser() {
   const handleEnableUser =
     async (id) => {
       try {
-        await api.post(
-          `/api/enable-user/${id}/`
-        );
-
-        alert(
-          'User enabled'
-        );
-
+        await api.post(`/api/enable-user/${id}/`);
+        alert('User enabled');
         fetchUsers();
-
       } catch (error) {
         console.error(error);
       }
@@ -173,23 +158,10 @@ function CreateUser() {
   --------------------------- */
   const handleForceLogout =
     async (id) => {
-
       try {
-
-        const res =
-          await api.post(
-            '/api/force-logout/',
-            {
-              user_id: id
-            }
-          );
-
-        alert(
-          res.data.message
-        );
-
+        const res = await api.post('/api/force-logout/', { user_id: id });
+        alert(res.data.message);
         fetchUsers();
-
       } catch (error) {
         console.error(error);
       }
@@ -203,16 +175,11 @@ function CreateUser() {
   --------------------------- */
   const handleEditUser =
     async (id) => {
-
       const first =
-        prompt(
-          'Enter new first name'
-        );
+        prompt('Enter new first name');
 
       const last =
-        prompt(
-          'Enter new last name'
-        );
+        prompt('Enter new last name');
 
       if (!first || !last) {
         return;
@@ -229,9 +196,7 @@ function CreateUser() {
           }
         );
 
-        alert(
-          'User updated'
-        );
+        alert('User updated');
 
         fetchUsers();
 
@@ -322,6 +287,21 @@ function CreateUser() {
               />
             </div>
 
+            {/* Email Input */}
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                Email <span className="text-red-400">*</span>
+              </label>
+
+              <input
+                type="email"
+                placeholder="Enter email..."
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:border-cyan-400/50 focus:outline-none transition-all duration-300"
+              />
+            </div>
+
             {/* Password Input */}
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
@@ -355,11 +335,10 @@ function CreateUser() {
             {/* Feedback Message */}
             {feedback.text && (
               <div
-                className={`px-4 py-3 rounded-xl border ${
-                  feedback.type === 'success'
-                    ? 'bg-green-500/10 border-green-500/30 text-green-300'
-                    : 'bg-red-500/10 border-red-500/30 text-red-300'
-                }`}
+                className={`px-4 py-3 rounded-xl border ${feedback.type === 'success'
+                  ? 'bg-green-500/10 border-green-500/30 text-green-300'
+                  : 'bg-red-500/10 border-red-500/30 text-red-300'
+                  }`}
               >
                 {feedback.text}
               </div>
@@ -403,6 +382,9 @@ function CreateUser() {
                       </h3>
                       <p className="text-slate-400 text-sm mb-3">
                         @{u.username}
+                      </p>
+                      <p className="text-slate-500 text-sm">
+                        {u.email}
                       </p>
                       <div className="flex flex-wrap gap-4 text-sm">
                         <div>

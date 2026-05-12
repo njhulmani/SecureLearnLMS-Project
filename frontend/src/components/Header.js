@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+
 function Header() {
   return (
-    <header className="bg-slate-900/60 backdrop-blur-xl border-b border-white/10 px-6 md:px-12 py-4 relative z-50">
+    <header className="fixed top-0 left-0 w-full bg-slate-900/60 backdrop-blur-xl border-b border-white/10 px-6 md:px-12 py-4 z-50">
       <div className="flex justify-between items-center max-w-7xl mx-auto">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group">
@@ -21,6 +22,7 @@ function Header() {
         <nav className="flex items-center gap-8">
           <Link
             to="/"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="text-slate-300 hover:text-cyan-400 transition-colors duration-300 font-medium"
           >
             Home

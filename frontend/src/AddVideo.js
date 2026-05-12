@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import api from './api';
 
 function AddVideo() {
   const navigate = useNavigate();
+  const { videoId } = useParams();
   const [courses, setCourses] = useState([]);
   const [courseId, setCourseId] = useState('');
   const [title, setTitle] = useState('');
@@ -12,6 +13,7 @@ function AddVideo() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState({ type: '', text: '' });
   const [isLoadingCourses, setIsLoadingCourses] = useState(true);
+  const isEditMode = Boolean(videoId);
 
   const handleBack = () => {
     if (window.history.length > 1) {
@@ -26,7 +28,7 @@ function AddVideo() {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const res = await api.get('/api/courses/');   // ✅ correct
+        const res = await api.get('/api/all-courses/');   // ✅ correct
         setCourses(res.data);
         setFeedback({ type: '', text: '' });
       } catch (err) {
@@ -60,12 +62,33 @@ function AddVideo() {
     setFeedback({ type: '', text: '' });
 
     try {
-      await api.post('/api/add-video/', {
-        course_id: courseId,
-        title,
-        description,
-        youtube_link: youtubeLink
-      });
+
+      if (isEditMode) {
+
+        await api.put(
+          `/api/edit-video/${videoId}/`,
+          {
+            title,
+            description,
+            youtube_link: youtubeLink,
+            course_id: courseId
+          }
+        );
+
+        alert('Video updated successfully');
+
+      } else {
+
+        await api.post('/api/add-video/', {
+          course_id: courseId,
+          title,
+          description,
+          youtube_link: youtubeLink
+        });
+
+        alert('Video added successfully');
+
+      }
 
       setFeedback({
         type: 'success',
@@ -88,6 +111,39 @@ function AddVideo() {
       setIsSubmitting(false);
     }
   };
+
+  // 🔹 Fetch video details if in edit mode
+  useEffect(() => {
+
+    if (!videoId) return;
+
+    const fetchVideo = async () => {
+
+      try {
+
+        const res = await api.get(
+          `/api/video-details/${videoId}/`
+        );
+
+        const video = res.data;
+
+        setTitle(video.title);
+        setDescription(video.description);
+        setYoutubeLink(video.link);
+        setCourseId(video.course_id);
+
+      } catch (error) {
+
+        console.error('Error loading video:', error.response?.data || error.message);
+        alert(error.response?.data?.error || 'Failed to load video');
+
+      }
+
+    };
+
+    fetchVideo();
+
+  }, [videoId]);
 
   return (
     <section className="min-h-screen bg-slate-950 relative overflow-hidden px-4 py-8 text-white sm:px-6 lg:px-8">
@@ -124,7 +180,7 @@ function AddVideo() {
 
         <form className="flex flex-col gap-5 bg-slate-900/40 px-6 py-8 backdrop-blur-xl sm:px-8 sm:py-10 lg:px-10" onSubmit={handleAddVideo}>
           <div className="space-y-2">
-            <h2 className="text-2xl font-semibold text-white sm:text-3xl">Add New Video</h2>
+            <h2 className="text-2xl font-semibold text-white sm:text-3xl">{isEditMode ? 'Edit Video' : 'Add New Video'}</h2>
             <p className="text-sm text-slate-400">
               Select a course and enter the lesson details below.
             </p>
@@ -200,7 +256,11 @@ function AddVideo() {
             disabled={isSubmitting}
             className="mt-1 inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-400 to-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-[0_18px_34px_rgba(34,211,238,0.2)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_36px_rgba(34,211,238,0.3)] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
           >
-            {isSubmitting ? 'Publishing Video...' : 'Publish Video'}
+            {
+              isSubmitting
+                ? (isEditMode ? 'Updating Video...' : 'Publishing Video...')
+                : (isEditMode ? 'Update Video' : 'Publish Video')
+            }
           </button>
         </form>
       </div>

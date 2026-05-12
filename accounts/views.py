@@ -37,21 +37,27 @@ def create_user(request):
     first_name = request.data.get('first_name')
     last_name = request.data.get('last_name')
     username = request.data.get('username')
+    email = request.data.get('email')
     password = request.data.get('password')
     role = request.data.get('role')
 
     # ❗ validation
-    if not username or not password or not role:
-        return Response({'error': 'username, password and role are required'}, status=400)
+    if not username or not email or not password or not role:
+        return Response({'error': 'username, email, password and role are required'}, status=400)
 
     # ❗ check duplicate user
     if User.objects.filter(username=username).exists():
         return Response({'error': 'Username already exists'}, status=400)
 
+    # ❗ check duplicate email
+    if User.objects.filter(email=email).exists():
+        return Response({'error': 'Email already exists'}, status=400)
+
     try:
         # ✅ create user (password hashed automatically)
         user = User.objects.create_user(
             username=username,
+            email=email,
             password=password,
             role=role
         )

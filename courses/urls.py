@@ -1,5 +1,6 @@
+from django import views
 from django.urls import path
-from .views import all_courses, archive_course, continue_watching, course_videos, course_details, create_course, add_video, delete_enrollment, edit_course, enroll_student, list_enrollments, mark_video_complete, student_courses, list_courses, track_video_watch, watch_course
+from .views import all_courses, archive_course, continue_watching, course_videos, course_details, create_course, add_video, delete_enrollment, delete_video, edit_course, enroll_student, list_enrollments, mark_video_complete, student_courses, list_courses, track_video_watch, watch_course, edit_video, delete_video, video_details
 
 urlpatterns = [
     path('api/create-course/', create_course),
@@ -18,4 +19,7 @@ urlpatterns = [
     path('api/course-videos/<int:course_id>/', course_videos),
     path('api/continue-watching/', continue_watching),  
     path('api/track-video-watch/', track_video_watch),
+    path('api/video-details/<int:video_id>/', video_details),
+    path('api/edit-video/<int:video_id>/', edit_video),
+    path('api/delete-video/<int:video_id>/', delete_video),
 ]

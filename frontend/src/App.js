@@ -2,13 +2,15 @@ import './App.css';
 import React, { useEffect, useState } from 'react';
 import api from './api';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import ForgotPassword from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
 
 /* Pages */
 import Home from './pages/Home';
 import Login from './Login';
 import WatchCourse from './pages/WatchCourse';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+import VideoManagement from './pages/VideoManagement';
+import About from './pages/About';
 
 import AdminDashboard from './AdminDashboard';
 import TrainerDashboard from './TrainerDashboard';
@@ -244,11 +246,17 @@ function App() {
       {/* MANAGE COURSES */}
       <Route path='/manage-courses' element={<ProtectedRoute role='admin'> <ManageCourses /> </ProtectedRoute>} />
 
-      {/* ADMIN + TRAINER */}
-      <Route path='/create-course' element={<MultiRoleRoute roles={['admin', 'trainer']}> <CreateCourse /> </MultiRoleRoute>} />
+      {/* VIDEO MANAGEMENT */}
+      <Route path="/video-management" element={<VideoManagement />} />
+      <Route path="/video-management/:courseId" element={<VideoManagement />} />
+
+      {/* ADMIN ONLY */}
+      <Route path='/create-course' element={<ProtectedRoute role='admin'> <CreateCourse /> </ProtectedRoute>} />
 
       {/* ADD VIDEO */}
       <Route path='/add-video' element={<MultiRoleRoute roles={['admin', 'trainer']}> <AddVideo /> </MultiRoleRoute>} />
+
+      <Route path="/add-video/:videoId" element={<AddVideo />} />
 
       {/* LOGOUT */}
       <Route
@@ -282,9 +290,10 @@ function App() {
       />
 
         {/* WATCH COURSE */}
-        <Route path="/watch-course/:courseId/:videoId?" 
-          element={<WatchCourse />}
-        />
+        <Route path="/watch-course/:courseId/:videoId?" element={<WatchCourse />}/>
+
+      {/* ABOUT */}
+      <Route path="/about" element={<About />} />
 
       {/* fallback */}
       <Route path='*' element={<Navigate to='/' />}/>

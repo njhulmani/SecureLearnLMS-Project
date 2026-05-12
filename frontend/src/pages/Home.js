@@ -5,7 +5,7 @@ import Footer from '../components/Footer';
 
 function Home() {
   return (
-    <div className="min-h-screen bg-slate-950 relative overflow-hidden">
+    <div className="min-h-screen pt-24 bg-slate-950 relative overflow-hidden">
       {/* Radial gradient background */}
       <div className="absolute inset-0 bg-gradient-radial from-cyan-500/10 via-transparent to-transparent opacity-30 pointer-events-none" />
 

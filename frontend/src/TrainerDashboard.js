@@ -8,7 +8,6 @@ function TrainerDashboard() {
   const [collapsed, setCollapsed] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [stats, setStats] = useState({ courses: 0, videos: 0 });
-  const [trainerCourses, setTrainerCourses] = useState([]);
 
   const currentUser = JSON.parse(localStorage.getItem('user'));
   const initials = (
@@ -39,18 +38,8 @@ function TrainerDashboard() {
     }
   };
 
-  const fetchTrainerCourses = async () => {
-    try {
-      const res = await api.get('/api/trainer-courses/');
-      setTrainerCourses(res.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   useEffect(() => {
     fetchStats();
-    fetchTrainerCourses();
   }, []);
 
   return (
@@ -157,7 +146,7 @@ function TrainerDashboard() {
                     Trainer Dashboard
                   </h2>
                   <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
-                    Manage your courses, upload videos, and track your training content all in one place.
+                    Upload videos and track your training content all in one place.
                   </p>
                 </div>
 
@@ -244,14 +233,11 @@ function TrainerDashboard() {
                     <div className="mt-4 space-y-3 text-sm text-slate-300">
                       <InfoRow label="Email" value={currentUser?.email || 'Not set'} />
                       <InfoRow label="Role" value="Trainer" />
-                      <InfoRow label="Catalog items" value={String(trainerCourses.length)} />
                     </div>
                   </div>
                 )}
               </div>
             </section>
-
-            {/* Catalog and course-management UI removed for trainers */}
           </div>
         </main>
       </div>

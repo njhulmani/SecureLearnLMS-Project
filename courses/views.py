@@ -1,4 +1,6 @@
 
+from urllib import request
+
 from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -6,8 +8,8 @@ from rest_framework.response import Response
 from .models import ContinueWatching, Course, VideoProgress, Video, Enrollment, User
 from django.contrib.auth import get_user_model
 from accounts.utils import validate_session
-User = get_user_model()
 from django.utils import timezone
+User = get_user_model()
 
 
 # Create Course 
@@ -20,7 +22,7 @@ def create_course(request):
         return session_check
 
     if request.user.role != "admin":
-        return Response({'error': 'Unauthorized acess, Only admin can create courses'}, status=403)
+        return Response({'error': 'Unauthorized access, only admin can create courses'}, status=403)
 
     title = request.data.get('title')
     description = request.data.get('description')
@@ -38,7 +40,7 @@ def create_course(request):
         category=category,
         level=level,
         duration=duration,
-        created_by = request.user
+        trainer=request.user
     )
 
     return Response({'message': 'Course created successfully'})
@@ -558,3 +560,107 @@ def track_video_watch(request):
     )
 
     return Response({'message': 'Tracking updated'})
+
+
+# Get video details
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def video_details(request, video_id):
+
+    session_check = validate_session(request)
+    if session_check:
+        return session_check
+
+    try:
+        video = Video.objects.get(id=video_id)
+    except Video.DoesNotExist:
+        return Response({'error': 'Video not found'}, status=404)
+
+    # Verify user has access to this video (admin, trainer, or enrolled student)
+    if request.user.role == 'admin':
+        # Admin can view any video
+        pass
+    elif request.user.role == 'trainer':
+        # Trainer can view only their course videos
+        if video.course.trainer != request.user:
+            return Response({'error': 'Unauthorized'}, status=403)
+    else:
+        # Student can view only enrolled course videos
+        enrollment = Enrollment.objects.filter(
+            student=request.user,
+            course=video.course
+        ).exists()
+        if not enrollment:
+            return Response({'error': 'Unauthorized'}, status=403)
+
+    return Response({
+        'id': video.id,
+        'title': video.title,
+        'description': video.description,
+        'link': video.youtube_link,
+        'course_id': video.course.id,
+        'course_title': video.course.title
+    })
+
+
+# Edit video
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def edit_video(request, video_id):
+
+    session_check = validate_session(request)
+    if session_check:
+        return session_check
+
+    # Only admin/trainer
+    if request.user.role not in ['admin', 'trainer']:
+        return Response({'error': 'Unauthorized'}, status=403)
+
+    try:
+        video = Video.objects.get(id=video_id)
+
+    except Video.DoesNotExist:
+        return Response({'error': 'Video not found'}, status=404)
+
+    video.title = request.data.get('title', video.title)
+
+    video.description = request.data.get('description', video.description)
+
+    video.youtube_link = request.data.get('youtube_link', video.youtube_link)
+
+    course_id = request.data.get('course_id')
+
+    if course_id:
+        try:
+            course = Course.objects.get(id=course_id)
+            video.course = course
+        except Course.DoesNotExist:
+            return Response({'error': 'Course not found'}, status=404)
+
+    video.save()
+
+    return Response({'message': 'Video updated successfully'})
+
+
+# Delete video
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_video(request, video_id):
+
+    session_check = validate_session(request)
+    if session_check:
+        return session_check
+
+    # Only admin/trainer
+    if request.user.role not in ['admin', 'trainer']:
+        return Response({'error': 'Unauthorized'}, status=403)
+
+    try:
+        video = Video.objects.get(id=video_id)
+
+    except Video.DoesNotExist:
+        return Response({'error': 'Video not found'}, status=404)
+
+    video.delete()
+
+    return Response({'message': 'Video deleted successfully'})

@@ -51,6 +51,7 @@ function AdminDashboard() {
     { label: 'Create User', icon: '👤', action: () => navigate('/create-user') },
     { label: 'Create Course', icon: '📚', action: () => navigate('/create-course') },
     { label: 'Manage Courses', icon: '🗂', action: () => navigate('/manage-courses') },
+    { label: 'Video Management', icon: '🎬', action: () => navigate('/video-management') },
     { label: 'Add Videos', icon: '🎥', action: () => navigate('/add-video') },
     { label: 'Enroll Students', icon: '🎓', action: () => navigate('/enroll') },
   ];
@@ -69,9 +70,8 @@ function AdminDashboard() {
 
       <div className="relative flex min-h-screen flex-col lg:flex-row">
         <aside
-          className={`border-r border-white/10 bg-slate-900/80 backdrop-blur-xl transition-all duration-300 ${
-            collapsed ? 'w-full lg:w-24' : 'w-full lg:w-80'
-          }`}
+          className={`border-r border-white/10 bg-slate-900/80 backdrop-blur-xl transition-all duration-300 ${collapsed ? 'w-full lg:w-24' : 'w-full lg:w-80'
+            }`}
         >
           <div className="flex items-center justify-between border-b border-white/10 px-5 py-5 lg:px-6">
             <div className="flex items-center gap-3">
@@ -223,6 +223,13 @@ function AdminDashboard() {
                     buttonLabel="Open"
                     onClick={() => navigate('/manage-courses')}
                     accent="from-amber-400/20 to-orange-500/20"
+                  />
+                  <ActionCard
+                    label="Video management"
+                    description="Edit, organize, update, and delete course videos from a centralized management panel."
+                    buttonLabel="Open"
+                    onClick={() => navigate('/video-management')}
+                    accent="from-violet-400/20 to-purple-500/20"
                   />
                   <ActionCard
                     label="Add videos"

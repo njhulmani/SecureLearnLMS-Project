@@ -59,12 +59,7 @@ function CreateCourse() {
             return;
         }
 
-        if (user?.role === 'admin') {
-            navigate('/manage-courses');
-        }
-        else {
-            navigate('/trainer');
-        }
+        navigate('/manage-courses');
 
     };
 
