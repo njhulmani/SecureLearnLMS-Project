@@ -92,7 +92,8 @@ def all_courses(request):
     if session_check:
         return session_check
 
-    if request.user.role!='admin':
+    
+    if request.user.role not in ['admin', 'trainer']:
         return Response({'error':'Unauthorized'}, status=403)
 
     courses=Course.objects.filter(is_archived=False)

@@ -49,6 +49,7 @@ function AdminDashboard() {
 
   const navItems = [
     { label: 'Create User', icon: '👤', action: () => navigate('/create-user') },
+    { label: 'Login Requests', icon: '📝', action: () => navigate('/admin/login-requests') },
     { label: 'Create Course', icon: '📚', action: () => navigate('/create-course') },
     { label: 'Manage Courses', icon: '🗂', action: () => navigate('/manage-courses') },
     { label: 'Video Management', icon: '🎬', action: () => navigate('/video-management') },
@@ -202,6 +203,13 @@ function AdminDashboard() {
                     buttonLabel="Open"
                     onClick={() => navigate('/create-user')}
                     accent="from-cyan-400/20 to-blue-500/20"
+                  />
+                  <ActionCard
+                    label="Review login requests"
+                    description="Approve or reject new student and trainer registration requests."
+                    buttonLabel="Open"
+                    onClick={() => navigate('/admin/login-requests')}
+                    accent="from-amber-400/20 to-orange-500/20"
                   />
                   <ActionCard
                     label="Build or edit a course"

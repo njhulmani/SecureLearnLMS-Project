@@ -102,7 +102,7 @@ function WatchCourse() {
             // ================= TRACK WATCH =================
             try {
                 await api.post(
-                    '/api/track-video-watch/', { course_id: courseId, video_id: videoId, });
+                    '/api/track-video-watch/', { course_id: courseId, video_id: selectedVideo.id });
 
                 console.log('Tracking saved');
 

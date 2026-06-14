@@ -10,16 +10,26 @@ function Login({ setUser }) {
   // ==========================State==========================
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [feedback, setFeedback] = useState({ type: '', text: '' });
 
 
 
   // =========================Login Handler==========================
-  const handleLogin = async () => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-    if (!username || !password) {
-      alert("Please enter username and password");
+    if (!username.trim() || !password || !role) {
+      setFeedback({
+        type: 'error',
+        text: 'Please fill in username/mobile number, password, and role.'
+      });
       return;
     }
+
+    setLoading(true);
+    setFeedback({ type: '', text: '' });
 
     // ✅ Clear old tokens
     localStorage.removeItem('access_token');
@@ -29,46 +39,38 @@ function Login({ setUser }) {
 
       const response = await api.post('/api/login/', {
         identifier: username,
-        password
+        password,
+        role
       });
-
-      console.log("Login response:", response.data);
 
       // ✅ Store ALL tokens FIRST
       localStorage.setItem('access_token', response.data.access_token);
       localStorage.setItem('session_token', response.data.session_token);
       localStorage.setItem('user', JSON.stringify(response.data));
 
-      console.log("Saved session_token:", localStorage.getItem('session_token'));
-
       // ✅ Update state
       setUser(response.data);
 
-      alert("Login successful: " + response.data.role);
-
-      setTimeout(() => {
-
-        // ✅ Single navigation (NO setTimeout needed)
-        if (response.data.role === 'admin') {
-          navigate('/admin');
-        }
-        else if (response.data.role === 'trainer') {
-          navigate('/trainer');
-        }
-        else {
-          navigate('/student');
-        }
-      }, 150);
+      if (response.data.role === 'admin') {
+        navigate('/admin');
+      }
+      else if (response.data.role === 'trainer') {
+        navigate('/trainer');
+      }
+      else {
+        navigate('/student');
+      }
 
 
     } catch (error) {
 
-      console.error("Login error:", error?.response || error);
+      setFeedback({
+        type: 'error',
+        text: error?.response?.data?.error || 'Invalid username/mobile number or password.'
+      });
 
-      alert(
-        error?.response?.data?.error ||
-        "Invalid login"
-      );
+    } finally {
+      setLoading(false);
 
     }
   };
@@ -115,7 +117,7 @@ function Login({ setUser }) {
           </div>
 
           {/* Form */}
-          <div className="space-y-5">
+          <form className="space-y-5" onSubmit={handleLogin}>
             {/* Username Input */}
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
@@ -129,6 +131,8 @@ function Login({ setUser }) {
                 className="w-full px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:border-cyan-400/50 focus:outline-none transition-all duration-300"
               />
             </div>
+
+
 
             {/* Password Input */}
             <div>
@@ -144,22 +148,59 @@ function Login({ setUser }) {
               />
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                Role
+              </label>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="w-full px-4 py-3 bg-slate-900/50 border border-white/10 rounded-xl text-white focus:border-cyan-400/50 focus:outline-none transition-all duration-300"
+              >
+                <option value="">Select role</option>
+                <option value="admin">Admin</option>
+                <option value="trainer">Trainer</option>
+                <option value="student">Student</option>
+              </select>
+            </div>
+
+            {feedback.text && (
+              <div
+                className={`px-4 py-3 rounded-xl border ${feedback.type === 'success'
+                  ? 'bg-green-500/10 border-green-500/30 text-green-300'
+                  : 'bg-red-500/10 border-red-500/30 text-red-300'
+                  }`}
+              >
+                {feedback.text}
+              </div>
+            )}
+
             {/* Login Button */}
             <button
-              onClick={handleLogin}
-              className="w-full px-4 py-3 bg-gradient-to-r from-cyan-400 to-blue-600 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 mt-6"
+              type="submit"
+              disabled={loading}
+              className="w-full px-4 py-3 bg-gradient-to-r from-cyan-400 to-blue-600 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 mt-6 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Sign In
+              {loading ? 'Signing In...' : 'Sign In'}
             </button>
-          </div>
+          </form>
 
           <div className="mt-4 text-center">
-            <Link 
+            <Link
               to="/forgot-password"
               className="text-slate-400 hover:text-cyan-400 text-sm font-medium transition-colors duration-300"
             >
               Forgot Password?
             </Link>
+          </div>
+
+          <div className="mt-3 text-center">
+            <p className="text-slate-400 text-sm">
+              Don't have an account?{' '}
+              <Link to="/signup" className="text-cyan-400 font-medium hover:text-cyan-300 transition-colors">
+                Sign Up
+              </Link>
+            </p>
           </div>
 
           {/* Footer Text */}
@@ -175,7 +216,7 @@ function Login({ setUser }) {
           <p className="text-slate-400 text-sm">
             Demo Credentials:
             <br />
-            <span className="text-cyan-400 font-medium">student / password123</span>
+            <span className="text-cyan-400 font-medium">student / password123 / student</span>
           </p>
         </div>
       </div>

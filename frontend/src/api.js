@@ -2,8 +2,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL,
-  // baseURL: 'http://127.0.0.1:8000',
+  baseURL: process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000',
   headers: {
     'Content-Type': 'application/json'
   }
@@ -27,10 +26,6 @@ api.interceptors.request.use((config) => {
     if (sessionToken) {
       config.headers['Session-Token'] = sessionToken;
     }
-    
-    // 🔥 ADD THIS
-    console.log("SESSION TOKEN:", sessionToken);
-    console.log("HEADERS SENT:", config.headers);
   }
 
   return config;

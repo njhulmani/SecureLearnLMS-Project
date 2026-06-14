@@ -1,25 +1,23 @@
-
-from django.contrib.auth.hashers import make_password
-
-from urllib import request
-
-from django.utils import timezone
-from datetime import timedelta
-from django.core.mail import send_mail
-from rest_framework.authtoken.models import Token
-from accounts.permissions import IsSessionValid
 import uuid
+from datetime import timedelta
 
 from django.contrib.auth import authenticate, get_user_model
+from django.core.mail import send_mail
+from django.db import transaction
 from django.db.models import Q
-from accounts.models import User, UserSession, PasswordResetToken
-
+from django.utils import timezone
+from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from courses.models import Course, Video, Enrollment, VideoProgress
 
-from .models import UserSession
+from accounts.permissions import IsSessionValid
+from accounts.serializers import RegistrationRequestListSerializer, RegistrationRequestSerializer
+from accounts.utils import generate_unique_username
+from courses.models import Course, Enrollment, Video, VideoProgress
+
+from .models import PasswordResetToken, RegistrationRequest, UserSession
+
 User = get_user_model()
 
 
@@ -40,10 +38,14 @@ def create_user(request):
     email = request.data.get('email')
     password = request.data.get('password')
     role = request.data.get('role')
+    valid_roles = {choice[0] for choice in User.ROLE_CHOICES}
 
     # ❗ validation
     if not username or not email or not password or not role:
         return Response({'error': 'username, email, password and role are required'}, status=400)
+
+    if role not in valid_roles:
+        return Response({'error': 'Invalid role'}, status=400)
 
     # ❗ check duplicate user
     if User.objects.filter(username=username).exists():
@@ -72,29 +74,138 @@ def create_user(request):
         return Response({'error': str(e)}, status=500)
 
 
+def _build_approved_user_from_request(registration_request):
+    username = generate_unique_username(registration_request.email)
+    user = User(
+        username=username,
+        email=registration_request.email,
+        first_name=registration_request.first_name,
+        last_name=registration_request.last_name,
+        role=registration_request.role,
+        is_verified=True,
+    )
+    user.password = registration_request.password
+    user.save()
+    return user
+
+
+@api_view(['POST'])
+def signup_request(request):
+    serializer = RegistrationRequestSerializer(data=request.data)
+
+    if not serializer.is_valid():
+        first_error = next(iter(serializer.errors.values()))[0]
+        return Response({'error': str(first_error)}, status=400)
+
+    serializer.save()
+
+    return Response(
+        {
+            'message': 'Registration request submitted successfully. Please wait for admin approval.'
+        },
+        status=201,
+    )
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, IsSessionValid])
+def list_registration_requests(request):
+    if request.user.role != 'admin':
+        return Response({'error': 'Unauthorized'}, status=403)
+
+    requests = RegistrationRequest.objects.all()
+    serializer = RegistrationRequestListSerializer(requests, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, IsSessionValid])
+def approve_registration_request(request, request_id):
+    if request.user.role != 'admin':
+        return Response({'error': 'Unauthorized'}, status=403)
+
+    try:
+        registration_request = RegistrationRequest.objects.get(id=request_id)
+    except RegistrationRequest.DoesNotExist:
+        return Response({'error': 'Request not found'}, status=404)
+
+    if registration_request.status != RegistrationRequest.StatusChoices.PENDING:
+        return Response({'error': 'This request has already been reviewed.'}, status=400)
+
+    with transaction.atomic():
+        user = User.objects.filter(email__iexact=registration_request.email).first()
+
+        if user is None:
+            user = _build_approved_user_from_request(registration_request)
+        else:
+            user.first_name = registration_request.first_name
+            user.last_name = registration_request.last_name
+            user.role = registration_request.role
+            user.is_active = True
+            user.is_verified = True
+            user.password = registration_request.password
+            user.save()
+
+        registration_request.status = RegistrationRequest.StatusChoices.APPROVED
+        registration_request.save(update_fields=['status', 'updated_at'])
+
+    return Response({
+        'message': 'Registration request approved successfully.',
+        'user_id': user.id,
+    })
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, IsSessionValid])
+def reject_registration_request(request, request_id):
+    if request.user.role != 'admin':
+        return Response({'error': 'Unauthorized'}, status=403)
+
+    try:
+        registration_request = RegistrationRequest.objects.get(id=request_id)
+    except RegistrationRequest.DoesNotExist:
+        return Response({'error': 'Request not found'}, status=404)
+
+    if registration_request.status != RegistrationRequest.StatusChoices.PENDING:
+        return Response({'error': 'This request has already been reviewed.'}, status=400)
+
+    registration_request.status = RegistrationRequest.StatusChoices.REJECTED
+    registration_request.save(update_fields=['status', 'updated_at'])
+
+    return Response({'message': 'Registration request rejected successfully.'})
+
+
 # ======================== Login API =========================
 @api_view(['POST'])
 def login_api(request):
 
     identifier = request.data.get('identifier')
     password = request.data.get('password') 
+    role = request.data.get('role')
 
-    if not identifier or not password:
+    if not identifier or not password or not role:
         return Response({'error': 'Missing credentials'}, status=400)
     
     identifier = identifier.strip()
+    role = str(role).strip().lower()
 
     user_obj = User.objects.filter(
         Q(username__iexact=identifier) | Q(email__iexact=identifier) | Q(phone__iexact=identifier)
     ).first()
 
     if user_obj is None:
-        return Response({'error': 'User not found'}, status=404)
+        return Response({'error': 'Invalid username/mobile number or password.'}, status=401)
 
     user = authenticate(request, username=user_obj.username, password=password)
 
     if user is None:
-        return Response({'error': 'Invalid credentials'}, status=401)
+        return Response({'error': 'Invalid username/mobile number or password.'}, status=401)
+
+    if not user.is_verified:
+        return Response({'error': 'Your account is awaiting admin approval.'}, status=403)
+
+    if user.role != role:
+        return Response({'error': 'Selected role does not match your account.'}, status=403)
 
     if not user.is_active:
         return Response({'error': 'User disabled'}, status=403)
@@ -288,6 +399,8 @@ def edit_user(request):
     last_name = request.data.get('last_name')
     role = request.data.get('role')
 
+    valid_roles = {choice[0] for choice in User.ROLE_CHOICES}
+
     if first_name:
         user.first_name = first_name
 
@@ -295,6 +408,8 @@ def edit_user(request):
         user.last_name = last_name
 
     if role:
+        if role not in valid_roles:
+            return Response({'error': 'Invalid role'}, status=400)
         user.role = role
 
     user.save()

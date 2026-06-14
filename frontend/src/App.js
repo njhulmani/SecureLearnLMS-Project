@@ -6,11 +6,13 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 /* Pages */
 import Home from './pages/Home';
 import Login from './Login';
+import Signup from './pages/Signup';
 import WatchCourse from './pages/WatchCourse';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import VideoManagement from './pages/VideoManagement';
 import About from './pages/About';
+import LoginRequests from './pages/LoginRequests';
 
 import AdminDashboard from './AdminDashboard';
 import TrainerDashboard from './TrainerDashboard';
@@ -219,6 +221,7 @@ function App() {
 
       {/* LOGIN */}
       <Route path='/login' element={<Login setUser={setUser} />} />
+      <Route path='/signup' element={<Signup />} />
 
       {/* Forgot Password */}
       <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -239,6 +242,7 @@ function App() {
 
       {/* ADMIN ONLY */}
       <Route path='/create-user' element={<ProtectedRoute role='admin'> <CreateUser /> </ProtectedRoute>} />
+      <Route path='/admin/login-requests' element={<ProtectedRoute role='admin'> <LoginRequests /> </ProtectedRoute>} />
 
       {/* ENROLL STUDENT */}
       <Route path='/enroll' element={<ProtectedRoute role='admin'> <EnrollStudent /> </ProtectedRoute>} />

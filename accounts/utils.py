@@ -1,4 +1,5 @@
 from datetime import timedelta
+import re
 
 from django.utils import timezone
 from rest_framework.response import Response
@@ -46,3 +47,17 @@ def validate_session(request):
         return Response({'error': error_message}, status=status_code)
 
     return None
+
+
+def generate_unique_username(email):
+    base_username = re.sub(r'[^a-zA-Z0-9._-]', '', email.split('@')[0].lower()) or 'user'
+    candidate = base_username
+    counter = 1
+
+    from accounts.models import User
+
+    while User.objects.filter(username=candidate).exists():
+        candidate = f'{base_username}{counter}'
+        counter += 1
+
+    return candidate
