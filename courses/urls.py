@@ -1,6 +1,12 @@
-from django import views
 from django.urls import path
-from .views import all_courses, archive_course, continue_watching, course_videos, course_details, create_course, add_video, delete_enrollment, delete_video, edit_course, enroll_student, list_enrollments, mark_video_complete, student_courses, list_courses, track_video_watch, watch_course, edit_video, delete_video, video_details
+from .views import (
+    create_course, edit_course, all_courses, archive_course,
+    add_video, edit_video, delete_video, video_details,
+    enroll_student, list_enrollments, delete_enrollment,
+    student_courses, list_courses, mark_video_complete,
+    watch_course, course_details, course_videos,
+    continue_watching, track_video_watch
+)
 
 urlpatterns = [
     path('api/create-course/', create_course),

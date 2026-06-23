@@ -7,7 +7,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import ContinueWatching, Course, VideoProgress, Video, Enrollment, User
 from django.contrib.auth import get_user_model
-from accounts.utils import validate_session
 from django.utils import timezone
 User = get_user_model()
 
@@ -16,11 +15,6 @@ User = get_user_model()
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_course(request):
-
-    session_check = validate_session(request)
-    if session_check:
-        return session_check
-
     if request.user.role != "admin":
         return Response({'error': 'Unauthorized access, only admin can create courses'}, status=403)
 
@@ -50,11 +44,6 @@ def create_course(request):
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def edit_course(request, course_id):
-
-    session_check= validate_session(request)
-    if session_check:
-        return session_check
-
     if request.user.role not in ['admin', 'trainer']:
         return Response({'error':'Unauthorized'}, status=403)
 
@@ -87,12 +76,6 @@ def edit_course(request, course_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def all_courses(request):
-
-    session_check=validate_session(request)
-    if session_check:
-        return session_check
-
-    
     if request.user.role not in ['admin', 'trainer']:
         return Response({'error':'Unauthorized'}, status=403)
 
@@ -123,13 +106,6 @@ def all_courses(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def archive_course(request, course_id):
-
-    session_check = validate_session(request)
-
-    if session_check:
-        return session_check
-
-
     if request.user.role not in ['admin', 'trainer']:
         return Response({'error':'Unauthorized'}, status=403)
 
@@ -157,11 +133,6 @@ def archive_course(request, course_id):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_video(request):
-
-    session_check = validate_session(request)
-    if session_check:
-        return session_check
-
     # ✅ Role check (Admin + Trainer only)
     if request.user.role not in ['admin', 'trainer']:
         return Response({'error': 'Unauthorized'}, status=403)
@@ -210,11 +181,6 @@ def add_video(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def enroll_student(request):
-
-    session_check = validate_session(request)
-    if session_check:
-        return session_check
-
     # ✅ Only admin can enroll
     if request.user.role != 'admin':
         return Response({'error': 'Unauthorized'}, status=403)
@@ -262,38 +228,33 @@ def enroll_student(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def student_courses(request):
-
-    session_check = validate_session(request)
-    if session_check:
-        return session_check
-
     if request.user.role != 'student':
         return Response({'error':'Unauthorized'}, status=403)
 
-    enrollments = Enrollment.objects.filter(student=request.user, course__is_archived=False)
+    enrollments = Enrollment.objects.filter(student=request.user, course__is_archived=False).select_related('course')
+    courses = [e.course for e in enrollments]
 
-    data=[]
+    videos = Video.objects.filter(course__in=courses)
+    completed_video_ids = set(VideoProgress.objects.filter(
+        student=request.user,
+        completed=True,
+        video__course__in=courses
+    ).values_list('video_id', flat=True))
 
-    for enroll in enrollments:
-        course = enroll.course
-        videos = Video.objects.filter(
-            course=course
-        )
+    from collections import defaultdict
+    course_videos = defaultdict(list)
+    for v in videos:
+        course_videos[v.course_id].append(v)
 
-        total_videos = videos.count()
-
-        completed_videos = VideoProgress.objects.filter(
-            student=request.user,
-            video__course=course,
-            completed=True
-        ).count()
+    data = []
+    for course in courses:
+        v_list = course_videos[course.id]
+        total_videos = len(v_list)
+        completed_videos = sum(1 for v in v_list if v.id in completed_video_ids)
 
         progress = 0
-
         if total_videos > 0:
-            progress = round(
-               (completed_videos / total_videos) * 100
-            )
+            progress = round((completed_videos / total_videos) * 100)
 
         data.append({
             'id': course.id,
@@ -303,21 +264,15 @@ def student_courses(request):
             'level': course.level,
             'duration': course.duration,
             'progress': progress,
-
             'videos': [
                 {
                     'id': v.id,
                     'title': v.title,
                     'description': v.description,
                     'link': v.youtube_link,
-                    'completed':
-                        VideoProgress.objects.filter(
-                            student=request.user,
-                            video=v,
-                            completed=True
-                        ).exists()
+                    'completed': v.id in completed_video_ids
                 }
-                for v in videos
+                for v in v_list
             ]
         })
 
@@ -328,11 +283,6 @@ def student_courses(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_courses(request):
-
-    session_check = validate_session(request)
-    if session_check:
-        return session_check
-    
     courses = Course.objects.filter(is_archived=False).values('id', 'title')
     return Response(list(courses))
 
@@ -341,11 +291,6 @@ def list_courses(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def mark_video_complete(request):
-
-    session_check = validate_session(request)
-    if session_check:
-        return session_check
-
     video_id=request.data.get('video_id')
 
     try:
@@ -404,11 +349,6 @@ def delete_enrollment(request, enrollment_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def watch_course(request, course_id, video_id):
-
-    session_check = validate_session(request)
-    if session_check:
-        return session_check
-
     if request.user.role != 'student':
         return Response({'error': 'Unauthorized'}, status=403)
 
@@ -460,11 +400,6 @@ def watch_course(request, course_id, video_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def course_details(request, course_id):
-
-    session_check = validate_session(request)
-    if session_check:
-        return session_check
-
     try:
         course = Course.objects.get(id=course_id, is_archived=False)
     except Course.DoesNotExist:
@@ -484,11 +419,6 @@ def course_details(request, course_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def course_videos(request, course_id):
-
-    session_check = validate_session(request)
-    if session_check:
-        return session_check
-
     videos = Video.objects.filter(course_id=course_id)
 
     data = []
@@ -515,11 +445,6 @@ def course_videos(request, course_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def continue_watching(request):
-
-    session_check = validate_session(request)
-    if session_check:
-        return session_check
-
     data = []
 
     records = ContinueWatching.objects.filter(student=request.user).select_related('course', 'last_video')
@@ -540,11 +465,6 @@ def continue_watching(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def track_video_watch(request):
-
-    session_check = validate_session(request)
-    if session_check:
-        return session_check
-
     course_id = request.data.get('course_id')
     video_id = request.data.get('video_id')
 
@@ -567,11 +487,6 @@ def track_video_watch(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def video_details(request, video_id):
-
-    session_check = validate_session(request)
-    if session_check:
-        return session_check
-
     try:
         video = Video.objects.get(id=video_id)
     except Video.DoesNotExist:
@@ -608,11 +523,6 @@ def video_details(request, video_id):
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def edit_video(request, video_id):
-
-    session_check = validate_session(request)
-    if session_check:
-        return session_check
-
     # Only admin/trainer
     if request.user.role not in ['admin', 'trainer']:
         return Response({'error': 'Unauthorized'}, status=403)
@@ -647,11 +557,6 @@ def edit_video(request, video_id):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_video(request, video_id):
-
-    session_check = validate_session(request)
-    if session_check:
-        return session_check
-
     # Only admin/trainer
     if request.user.role not in ['admin', 'trainer']:
         return Response({'error': 'Unauthorized'}, status=403)

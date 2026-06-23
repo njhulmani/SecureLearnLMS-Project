@@ -14,6 +14,15 @@ function VideoManagement() {
     const [courseName, setCourseName] = useState('');
 
 
+    // ================= GET YOUTUBE THUMBNAIL =================
+    const getYoutubeThumbnail = (url) => {
+        if (!url) return '';
+        const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+        const match = url.match(regExp);
+        const videoId = match && match[2].length === 11 ? match[2] : null;
+        return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : '';
+    };
+
     // ================= FETCH COURSES =================
     const fetchCourses = async () => {
 
@@ -185,7 +194,7 @@ function VideoManagement() {
 
                                             {/* THUMBNAIL */}
                                             <img
-                                                src={`https://img.youtube.com/vi/${video.link.split('v=')[1]?.split('&')[0] || ''}/hqdefault.jpg`}
+                                                src={getYoutubeThumbnail(video.link)}
                                                 alt={video.title}
                                                 className="w-full h-48 object-cover group-hover:brightness-75 transition"
                                             />

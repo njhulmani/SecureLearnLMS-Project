@@ -4,7 +4,7 @@ from datetime import timedelta
 from django.contrib.auth import authenticate, get_user_model
 from django.core.mail import send_mail
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Exists, OuterRef
 from django.utils import timezone
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, permission_classes
@@ -506,34 +506,24 @@ def student_stats(request):
     if request.user.role!='student':
         return Response({'error':'Unauthorized'}, status=403)
 
-    enrollments=Enrollment.objects.filter(student=request.user, course__is_archived=False)
-
-    course_count = enrollments.count()
-    total_videos = 0
-    completed = 0
-
-    for enroll in enrollments:
-        videos=Video.objects.filter(course=enroll.course, course__is_archived=False)
-        total_videos+=videos.count()
-        for v in videos:
-            if VideoProgress.objects.filter(
-               student=request.user,
-               video=v,
-               completed=True
-            ).exists():
-                completed+=1
+    course_count = Enrollment.objects.filter(student=request.user, course__is_archived=False).count()
+    total_videos = Video.objects.filter(course__enrollment__student=request.user, course__is_archived=False).count()
+    completed = VideoProgress.objects.filter(
+        student=request.user, 
+        completed=True, 
+        video__course__enrollment__student=request.user,
+        video__course__is_archived=False
+    ).count()
 
     progress = 0
-
     if total_videos > 0:
-       progress = round(completed/total_videos*100)
+        progress = round(completed / total_videos * 100)
 
     return Response({
-      'courses':course_count,
-      'completed':completed,
-      'total_videos':total_videos,
-      'progress':progress
-
+      'courses': course_count,
+      'completed': completed,
+      'total_videos': total_videos,
+      'progress': progress
     })
 
 
@@ -548,13 +538,12 @@ def list_users(request):
           status=403
         )
 
-    users=User.objects.all()
+    active_sessions = UserSession.objects.filter(user=OuterRef('pk'), is_active=True)
+    users = User.objects.annotate(has_active_session=Exists(active_sessions))
 
     data=[]
 
     for u in users:
-        active_session=UserSession.objects.filter(user=u, is_active=True).exists()
-
         data.append({
           'id':u.id,
           'username':u.username,
@@ -562,8 +551,7 @@ def list_users(request):
           'last_name':u.last_name,
           'role':u.role,
           'is_active':u.is_active,
-          'has_active_session':
-             active_session
+          'has_active_session': u.has_active_session
         })
 
     return Response(data)
@@ -602,7 +590,7 @@ def forgot_password(request):
 def reset_password(request, token):
     password = request.data.get('password')
 
-    if len(password) < 6:
+    if not password or len(password) < 6:
         return Response({'error': 'Password must be at least 6 characters'}, status=400)
 
     reset_obj = PasswordResetToken.objects.filter(token=token).first()
@@ -610,14 +598,18 @@ def reset_password(request, token):
     if not reset_obj:
         return Response({'error': 'Invalid or expired token'}, status=400)
 
-    user = reset_obj.user
-    user.set_password(password) 
-    user.save()
-
-    # delete token after use
+    # Check expiration first
     if timezone.now() > reset_obj.expires_at:
         reset_obj.delete()
-        return Response({'error': 'Token expired'}, status=400) 
+        return Response({'error': 'Token expired'}, status=400)
+
+    # Update password and save
+    user = reset_obj.user
+    user.set_password(password)
+    user.save()
+
+    # Delete token on successful reset to prevent replay attacks
+    reset_obj.delete()
 
     return Response({'message': 'Password updated successfully'})
 

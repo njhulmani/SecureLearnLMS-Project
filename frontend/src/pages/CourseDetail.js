@@ -6,7 +6,8 @@ import ReadMoreText from '../components/ReadMoreText';
 
 function CourseDetail() {
 
-  const { id } = useParams();
+  const { courseId } = useParams();
+  const id = courseId;
   const navigate = useNavigate();
 
   const [course, setCourse] = useState(null);

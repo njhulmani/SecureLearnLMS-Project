@@ -179,13 +179,3 @@ function About() {
 }
 
 export default About;
-
-<div className="border-t border-white/10 pt-8">
-    <div className="text-center text-slate-400 text-sm space-y-2">
-        <p>© 2026 SecureLearn LMS. All rights reserved.</p>
-        <p>
-            Secure Learning Platform Developed By @NagarajHulmani
-            {/* <span className="text-cyan-400">❤️</span> */}
-        </p>
-    </div>
-</div>

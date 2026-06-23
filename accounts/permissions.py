@@ -7,9 +7,9 @@ class IsSessionValid(BasePermission):
     def has_permission(self, request, view):
         session_token = request.headers.get("Session-Token")
 
-        if not session_token:
+        if not session_token or not request.user or not request.user.is_authenticated:
             return False
-        
+
         try:
             session = UserSession.objects.get(
                 user=request.user,

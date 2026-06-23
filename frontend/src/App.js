@@ -251,16 +251,15 @@ function App() {
       <Route path='/manage-courses' element={<ProtectedRoute role='admin'> <ManageCourses /> </ProtectedRoute>} />
 
       {/* VIDEO MANAGEMENT */}
-      <Route path="/video-management" element={<VideoManagement />} />
-      <Route path="/video-management/:courseId" element={<VideoManagement />} />
+      <Route path="/video-management" element={<MultiRoleRoute roles={['admin', 'trainer']}> <VideoManagement /> </MultiRoleRoute>} />
+      <Route path="/video-management/:courseId" element={<MultiRoleRoute roles={['admin', 'trainer']}> <VideoManagement /> </MultiRoleRoute>} />
 
       {/* ADMIN ONLY */}
       <Route path='/create-course' element={<ProtectedRoute role='admin'> <CreateCourse /> </ProtectedRoute>} />
 
-      {/* ADD VIDEO */}
+      {/* ADD / EDIT VIDEO */}
       <Route path='/add-video' element={<MultiRoleRoute roles={['admin', 'trainer']}> <AddVideo /> </MultiRoleRoute>} />
-
-      <Route path="/add-video/:videoId" element={<AddVideo />} />
+      <Route path="/add-video/:videoId" element={<MultiRoleRoute roles={['admin', 'trainer']}> <AddVideo /> </MultiRoleRoute>} />
 
       {/* LOGOUT */}
       <Route
@@ -294,7 +293,7 @@ function App() {
       />
 
         {/* WATCH COURSE */}
-        <Route path="/watch-course/:courseId/:videoId?" element={<WatchCourse />}/>
+        <Route path="/watch-course/:courseId/:videoId?" element={<ProtectedRoute role='student'> <WatchCourse /> </ProtectedRoute>}/>
 
       {/* ABOUT */}
       <Route path="/about" element={<About />} />

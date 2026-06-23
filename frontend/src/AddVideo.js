@@ -92,14 +92,16 @@ function AddVideo() {
 
       setFeedback({
         type: 'success',
-        text: 'Video added successfully.'
+        text: isEditMode ? 'Video updated successfully.' : 'Video added successfully.'
       });
 
-      // 🔄 Reset form
-      setCourseId('');
-      setTitle('');
-      setDescription('');
-      setYoutubeLink('');
+      if (!isEditMode) {
+        // 🔄 Reset form
+        setCourseId('');
+        setTitle('');
+        setDescription('');
+        setYoutubeLink('');
+      }
 
     } catch (error) {
       console.error(error.response);
